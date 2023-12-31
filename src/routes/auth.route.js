@@ -15,11 +15,11 @@ const {
 
 router.post("/register", createNewUser);
 
-router.post("/login_with_phone", loginWithPhoneOtp);
+router.post("/login", loginWithPhoneOtp);
 
 router.post("/verify", verifyPhoneOtp);
 
-router.get("/me", checkAuth, fetchCurrentUser);
+router.get("/currentUser", checkAuth, fetchCurrentUser);
 
 router.get("/admin", checkAuth, checkAdmin, handleAdmin);
 
