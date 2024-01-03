@@ -6,26 +6,26 @@ const userSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-
     },
-
-    phone: {
+    email: {
       type: String,
       required: true,
       trim: true,
       unique: true,
     },
-
-    role :{
-     type : String,
-     enum:["ADMIN","USER"],
-     default:"USER",
+    role: {
+      type: String,
+      enum: ["ADMIN", "USER"],
+      default: "USER",
     },
-
-
-   phoneOtp:String
-
-
+    otp: {
+      code: {
+        type: Number,
+      },
+      expiresAt: {
+        type: Date,
+      },
+    },
   },
   { timestamps: true }
 );

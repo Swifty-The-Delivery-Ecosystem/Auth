@@ -1,8 +1,8 @@
 const User = require("../models/user.model");
+const nodemailer = require("nodemailer");
 // KXPFKU96F1QHUHQ4PPDH2Z8H
 const {
   PHONE_NOT_FOUND_ERR,
-
   PHONE_ALREADY_EXISTS_ERR,
   USER_NOT_FOUND_ERR,
   INCORRECT_OTP_ERR,
@@ -11,74 +11,116 @@ const {
 
 // const { checkPassword, hashPassword } = require("../utils/password.util");
 const { createJwtToken } = require("../utils/token.util");
-const {TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN} = process.env
-const client = require('twilio')(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
-    lazyloading: true
-})
+const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
+  process.env;
+const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
+  lazyloading: true,
+});
+
+let mailTransporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "adityavinay@iitbhilai.ac.in",
+    pass: "afbu jlzp wolw qhya",
+  },
+});
+
+const otp = Math.floor(1000 + Math.random() * 9000);
+
 // --------------------- create new user ---------------------------------
 
 exports.createNewUser = async (req, res, next) => {
   try {
-    let {phone, name} = req.body;
-    console.log(req.body)
-    let countrycode = 91
+    let { email, name } = req.body;
+    console.log(req.body);
+    // let countrycode = 91
     // check duplicate phone Number
-    const phoneExist = await User.findOne({ phone });
+    const emailExist = await User.findOne({ email });
 
-    if (phoneExist) {
-      next({ status: 400, message: PHONE_ALREADY_EXISTS_ERR });
+    if (emailExist) {
+      next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
       return;
     }
-
-
     // create new user
     const createUser = new User({
-      phone,
+      email,
       name,
-      role : phone === process.env.ADMIN_PHONE ? "ADMIN" :"USER"
+      role: "USER",
+      otp: {
+        code: otp,
+        expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
+      },
     });
 
     // save user
 
     const user = await createUser.save();
 
-    const otpResponse = await client.verify
-    .services(TWILIO_SERVICE_SID) 
-    .verifications.create({
-        to:`+${countrycode}${phone}`,
-        channel: "sms",
-    })
+    let mailDetails = {
+      from: "adityavinay@iitbhilai.ac.in",
+      to: email,
+      subject: "Test mail",
+      text: `Your OTP is: ${otp}`,
+    };
+    mailTransporter.sendMail(mailDetails, function (err, data) {
+      if (err) {
+        console.log("Error Occurs");
+        console.log(err);
+      } else {
+        console.log("Email sent successfully");
+      }
+    });
+    // const otpResponse = await client.verify
+    // .services(TWILIO_SERVICE_SID)
+    // .verifications.create({
+    //     to:`+${countrycode}${phone}`,
+    //     channel: "sms",
+    // })
 
-    res.status(200).send(`OTP send successfully : ${JSON.stringify(otpResponse)} `);
+    res.status(200).send("OTP send successfully");
   } catch (error) {
     next(error);
   }
 };
 
-
-
 // ------------ login with phone otp ----------------------------------
 
 exports.loginWithPhoneOtp = async (req, res, next) => {
   try {
-
-    const { phone } = req.body;
-    const user = await User.findOne({ phone });
+    const { email } = req.body;
+    const user = await User.findOne({ email });
 
     if (!user) {
-      next({ status: 400, message: PHONE_NOT_FOUND_ERR });
+      next({ status: 400, message: EMAIL_NOT_FOUND_ERR });
       return;
     }
 
-    const otpResponse = await client.verify
-    .services(TWILIO_SERVICE_SID) 
-    .verifications.create({
-        to:`+${countrycode}${phone}`,
-        channel: "sms",
-    })
+    user.otp = { code: otp, expiresAt: new Date(Date.now() + 2 * 60 * 1000) };
 
-    res.status(200).send(`OTP send successfully : ${JSON.stringify(otpResponse)} `);
-  
+    // const otp = Math.floor(1000 + Math.random() * 9000);
+
+    // const otpResponse = await client.verify
+    // .services(TWILIO_SERVICE_SID)
+    // .verifications.create({
+    //     to:`+${countrycode}${phone}`,
+    //     channel: "sms",
+    // })
+    let mailDetails = {
+      from: "adityavinay@iitbhilai.ac.in",
+      to: email,
+      subject: "Test mail",
+      text: `Your OTP is: ${user.otp.code}`,
+    };
+    mailTransporter.sendMail(mailDetails, function (err, data) {
+      if (err) {
+        console.log("Error Occurs");
+        console.log(err);
+      } else {
+        console.log("Email sent successfully");
+      }
+    });
+
+    res.status(200).send("OTP send successfully");
   } catch (error) {
     next(error);
   }
@@ -88,22 +130,25 @@ exports.loginWithPhoneOtp = async (req, res, next) => {
 
 exports.verifyPhoneOtp = async (req, res, next) => {
   try {
-    const { otp, phone, countrycode } = req.body;
-    const user = await User.findOne({phone});
+    const { in_otp, email } = req.body;
+    const user = await User.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
+    } 
+    console.log(user.otp.code);
+    if (in_otp !== user.otp.code) {
+      next({ status: 400, message: INCORRECT_OTP_ERR });
+      return;
     }
-
-    const verifiedResponse = await client.verify.
-    services(TWILIO_SERVICE_SID)
-    .verificationChecks.create({
-        to:`+${countrycode}${phone}`,
-        code: otp,
-    });
+    // const verifiedResponse = await client.verify.
+    // services(TWILIO_SERVICE_SID)
+    // .verificationChecks.create({
+    //     to:`+${countrycode}${phone}`,
+    //     code: otp,
+    // });
 
     const token = createJwtToken({ userId: user._id });
-
 
     res.status(201).json({
       type: "success",
@@ -118,19 +163,17 @@ exports.verifyPhoneOtp = async (req, res, next) => {
   }
 };
 
-
 // --------------- fetch current user -------------------------
 
 exports.fetchCurrentUser = async (req, res, next) => {
   try {
     const currentUser = res.locals.user;
 
-
     return res.status(200).json({
       type: "success",
       message: "fetch current user",
       data: {
-        user:currentUser,
+        user: currentUser,
       },
     });
   } catch (error) {
@@ -148,11 +191,10 @@ exports.handleAdmin = async (req, res, next) => {
       type: "success",
       message: "Okay you are admin!!",
       data: {
-        user:currentUser,
+        user: currentUser,
       },
     });
   } catch (error) {
     next(error);
   }
 };
-
