@@ -88,9 +88,8 @@ exports.loginWithPhoneOtp = async (req, res, next) => {
 
 exports.verifyPhoneOtp = async (req, res, next) => {
   try {
-    const { otp, userId, phone, countrycode } = req.body;
-    console.log(userId)
-    const user = await User.findById(userId);
+    const { otp, phone, countrycode } = req.body;
+    const user = await User.findOne({phone});
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
