@@ -10,7 +10,7 @@ const {
   createNewUser,
   verifyPhoneOtp,
   handleAdmin
-} = require("../controllers/auth.controller");
+} = require("../controllers/userAuth.controller");
 
 
 router.post("/register", createNewUser);
