@@ -27,7 +27,7 @@ let mailTransporter = nodemailer.createTransport({
   },
 });
 
-const otp = Math.floor(1000 + Math.random() * 9000);
+const otp = Math.floor(1000 + Math.random() * 8000);
 
 // ---------------------- verify mail otp -------------------------
 
