@@ -8,7 +8,8 @@ const { PORT, MONGODB_URI, NODE_ENV, ORIGIN } = require("./config");
 const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
 
 // routes
-const userAuthRoutes = require("./routes/auth.route");
+const userAuthRoutes = require("./routes/userAuth.route");
+const vendorAuthRoutes = require("./routes/vendorAuth.route");
 
 // init express app
 const app = express();

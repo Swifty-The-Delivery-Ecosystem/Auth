@@ -1,4 +1,4 @@
-const Vendor = require("../models/venodr.model")
+const Vendor = require("../models/vendor.model")
 
 const { AUTH_TOKEN_MISSING_ERR, AUTH_HEADER_MISSING_ERR, JWT_DECODE_ERR, USER_NOT_FOUND_ERR } = require("../errors")
 const { verifyJwtToken } = require("../utils/token.util")
@@ -30,14 +30,14 @@ module.exports = async (req, res, next) => {
             return
         }
 
-        const vendor = await Vendor.findById(VendorId)
+        const vendor = await Vendor.findById(vendorId)
 
         if (!vendor) {
             next({status: 404, message: USER_NOT_FOUND_ERR })
             return
         }
 
-        res.locals.user = vendor
+        res.locals.user = vendor;
 
         next()
     } catch (err) {

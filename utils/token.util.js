@@ -3,7 +3,7 @@ const { JWT_DECODE_ERR } = require("../errors");
 const { JWT_SECRET } = require("../config");
 
 exports.createJwtToken = (payload) => {
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "12h" });
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "120h" });
   return token;
 };
 

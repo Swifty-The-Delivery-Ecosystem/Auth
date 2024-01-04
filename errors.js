@@ -12,5 +12,7 @@ exports.USER_NOT_FOUND_ERR = "User not found";
 
 exports.ACCESS_DENIED_ERR = "Access deny for normal user";
 
+exports.Email_NOT_FOUND_ERR = "email not found";
+
 exports.MAIL_ALREADY_EXISTS_ERR =
   "This mail is already registered. Please login instead.";

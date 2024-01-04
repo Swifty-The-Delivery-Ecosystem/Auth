@@ -2,23 +2,17 @@ const express = require("express");
 const router = express.Router();
 
 
-const checkAuth = require("../middlewares/checkAuth");
-const checkAdmin = require("../middlewares/checkAdmin");
+const checkAuth = require("../middlewares/checkVendor");
+
 const {
-  fetchCurrentUser,
-  loginWithPhoneOtp,
-  createNewUser,
-  verifyPhoneOtp,
-  handleAdmin
-} = require("../controllers/userAuth.controller");
+  vendorLogin,createNewVendor, fetchCurrentVendor
+} = require("../controllers/vendorAuth.controller");
 
 
 router.post("/register", createNewVendor);
 
 router.post("/login", vendorLogin);
 
-router.post("/verify", verifyPhoneOtp);
-
-router.get("/currentVendor", checkAuth, fetchCurrentUser);
+router.get("/currentVendor", checkAuth, fetchCurrentVendor);
 
 module.exports = router;
