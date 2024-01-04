@@ -1,22 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const session = require("express-session");
 const cors = require("cors");
 require("dotenv").config();
 
-
-const { PORT, MONGODB_URI, NODE_ENV,ORIGIN } = require("./config");
+const { PORT, MONGODB_URI, NODE_ENV, ORIGIN } = require("./config");
 const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
 
 // routes
 const userAuthRoutes = require("./routes/auth.route");
 
-
 // init express app
 const app = express();
 
 // middlewares
-
-
 
 app.use(express.json());
 app.use(
@@ -24,6 +21,17 @@ app.use(
     credentials: true,
     origin: ORIGIN,
     optionsSuccessStatus: 200,
+  })
+);
+app.use(
+  session({
+    secret: "adityaWasHere",
+    resave: false, //false recom to avoid unnecessary session store writes.
+    saveUninitialized: true,
+    cookie: {
+      secure: true,
+      maxAge: 2592000000, // 30 days in ms
+    },
   })
 );
 
@@ -75,9 +83,9 @@ app.use((err, req, res, next) => {
 async function main() {
   try {
     await mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
     console.log("database connected");
 
