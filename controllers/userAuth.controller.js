@@ -1,21 +1,22 @@
 const User = require("../models/user.model");
 const nodemailer = require("nodemailer");
-// KXPFKU96F1QHUHQ4PPDH2Z8H
+
 const {
-  PHONE_NOT_FOUND_ERR,
-  PHONE_ALREADY_EXISTS_ERR,
+  // PHONE_NOT_FOUND_ERR,
+  // PHONE_ALREADY_EXISTS_ERR,
   USER_NOT_FOUND_ERR,
+  MAIL_ALREADY_EXISTS_ERR,
   INCORRECT_OTP_ERR,
   ACCESS_DENIED_ERR,
 } = require("../errors");
 
-// const { checkPassword, hashPassword } = require("../utils/password.util");
+const { checkPassword, hashPassword } = require("../utils/password.util");
 const { createJwtToken } = require("../utils/token.util");
-const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
-  process.env;
-const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
-  lazyloading: true,
-});
+// const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
+//   process.env;
+// const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
+//   lazyloading: true,
+// });
 
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
@@ -26,6 +27,43 @@ let mailTransporter = nodemailer.createTransport({
 });
 
 const otp = Math.floor(1000 + Math.random() * 9000);
+
+// ---------------------- verify mail otp -------------------------
+
+exports.verifyOtp = async (req, res, next) => {
+  try {
+    const { in_otp, email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      next({ status: 400, message: USER_NOT_FOUND_ERR });
+      return;
+    }
+    console.log(user.otp.code);
+    if (in_otp !== user.otp.code) {
+      next({ status: 400, message: INCORRECT_OTP_ERR });
+      return;
+    }
+    // const verifiedResponse = await client.verify.
+    // services(TWILIO_SERVICE_SID)
+    // .verificationChecks.create({
+    //     to:`+${countrycode}${phone}`,
+    //     code: otp,
+    // });
+
+    const token = createJwtToken({ userId: user._id });
+
+    res.status(201).json({
+      type: "success",
+      message: "OTP verified successfully.",
+      data: {
+        token,
+        userId: user._id,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 // --------------------- create new user ---------------------------------
 
@@ -38,7 +76,7 @@ exports.createNewUser = async (req, res, next) => {
     const emailExist = await User.findOne({ email });
 
     if (emailExist) {
-      next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
+      next({ status: 400, message: MAIL_ALREADY_EXISTS_ERR });
       return;
     }
     // create new user
@@ -53,15 +91,15 @@ exports.createNewUser = async (req, res, next) => {
     });
 
     // save user
-
     const user = await createUser.save();
 
     let mailDetails = {
       from: "adityavinay@iitbhilai.ac.in",
       to: email,
-      subject: "Test mail",
+      subject: "OTP for creating account at Swifty.",
       text: `Your OTP is: ${otp}`,
     };
+
     mailTransporter.sendMail(mailDetails, function (err, data) {
       if (err) {
         console.log("Error Occurs");
@@ -77,7 +115,7 @@ exports.createNewUser = async (req, res, next) => {
     //     channel: "sms",
     // })
 
-    res.status(200).send("OTP send successfully");
+    res.status(200).send("OTP sent successfully to your email address.");
   } catch (error) {
     next(error);
   }
@@ -126,43 +164,6 @@ exports.loginWithPhoneOtp = async (req, res, next) => {
   }
 };
 
-// ---------------------- verify phone otp -------------------------
-
-exports.verifyPhoneOtp = async (req, res, next) => {
-  try {
-    const { in_otp, email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      next({ status: 400, message: USER_NOT_FOUND_ERR });
-      return;
-    } 
-    console.log(user.otp.code);
-    if (in_otp !== user.otp.code) {
-      next({ status: 400, message: INCORRECT_OTP_ERR });
-      return;
-    }
-    // const verifiedResponse = await client.verify.
-    // services(TWILIO_SERVICE_SID)
-    // .verificationChecks.create({
-    //     to:`+${countrycode}${phone}`,
-    //     code: otp,
-    // });
-
-    const token = createJwtToken({ userId: user._id });
-
-    res.status(201).json({
-      type: "success",
-      message: "OTP verified successfully",
-      data: {
-        token,
-        userId: user._id,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 // --------------- fetch current user -------------------------
 
 exports.fetchCurrentUser = async (req, res, next) => {
@@ -189,7 +190,7 @@ exports.handleAdmin = async (req, res, next) => {
 
     return res.status(200).json({
       type: "success",
-      message: "Okay you are admin!!",
+      message: "Mr. Admin, you are in!",
       data: {
         user: currentUser,
       },

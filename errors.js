@@ -11,3 +11,6 @@ exports.JWT_DECODE_ERR = "incorrect token";
 exports.USER_NOT_FOUND_ERR = "User not found";
 
 exports.ACCESS_DENIED_ERR = "Access deny for normal user";
+
+exports.MAIL_ALREADY_EXISTS_ERR =
+  "This mail is already registered. Please login instead.";
