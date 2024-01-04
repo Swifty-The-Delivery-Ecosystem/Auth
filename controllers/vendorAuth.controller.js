@@ -36,15 +36,13 @@ exports.createNewVendor = async (req, res, next) => {
       next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
       return;
     }
-    // create new user
-    const hashedPassword = await bcrypt.hash(password, 10);
-    
-
+    // create new vendor
+  
     const createVendor = new Vendor({
       ownerName,
       email,
       restaurantName,
-      password: hashedPassword,
+      password,
       otp: {
         code: otp,
         expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
@@ -86,9 +84,8 @@ exports.vendorLogin = async (req, res, next) => {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
     }
-
-    const passwordMatch = await bcrypt.compare(password, user.password);
     
+    const passwordMatch = vendor.password=== password;
     if (passwordMatch) {
         // Generate JWT token
         const token = createJwtToken({ userId: vendor._id });
@@ -162,5 +159,3 @@ exports.fetchCurrentVendor = async (req, res, next) => {
     next(error);
   }
 };
-
-

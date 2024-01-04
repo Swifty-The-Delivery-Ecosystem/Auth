@@ -71,7 +71,6 @@ exports.verifyOtp = async (req, res, next) => {
 exports.createNewUser = async (req, res, next) => {
   try {
     let { email, name, passwd } = req.body; // send the hashed passwd from the client
-    console.log(req.body);
     // let countrycode = 91
     // check duplicate phone Number
     const emailExist = await User.findOne({ email });
