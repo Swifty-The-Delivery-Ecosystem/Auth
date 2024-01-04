@@ -27,7 +27,7 @@ const vendorSchema = new Schema(
     },
     restaurantId: {
       type: Number,
-      required: false,
+      //required: false,
       unique: true,
     },
     email: {
@@ -62,14 +62,14 @@ const vendorSchema = new Schema(
     },
     ratings: [ratingSchema],
     images: [String],
-    // otp: {
-    //   code: {
-    //     type: Number,
-    //   },
-    //   expiresAt: {
-    //     type: Date,
-    //   },
-    // },
+    otp: {
+      code: {
+        type: Number,
+      },
+      expiresAt: {
+        type: Date,
+      },
+    },
   },
   { timestamps: true }
 );

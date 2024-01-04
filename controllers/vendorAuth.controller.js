@@ -1,18 +1,18 @@
 const Vendor = require("../models/vendor.model");
 const nodemailer = require("nodemailer");
-// const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 // KXPFKU96F1QHUHQ4PPDH2Z8H
 const {
-  // PHONE_NOT_FOUND_ERR,
-  // PHONE_ALREADY_EXISTS_ERR,
+  PHONE_NOT_FOUND_ERR,
+  PHONE_ALREADY_EXISTS_ERR,
   USER_NOT_FOUND_ERR,
   INCORRECT_OTP_ERR,
-  INCORRECT_PASS_ERR,
   ACCESS_DENIED_ERR,
 } = require("../errors");
 
 // const { checkPassword, hashPassword } = require("../utils/password.util");
 const { createJwtToken } = require("../utils/token.util");
+const otp = Math.floor(1000 + Math.random() * 9000);
 
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
@@ -22,68 +22,33 @@ let mailTransporter = nodemailer.createTransport({
   },
 });
 
-const otp = Math.floor(1000 + Math.random() * 9000);
-
-// ---------------------- verify mail otp -------------------------
-
-exports.verifyOtp = async (req, res, next) => {
-  try {
-    const { in_otp, email } = req.body;
-    const vendor = await Vendor.findOne({ email });
-    if (!vendor) {
-      next({ status: 400, message: USER_NOT_FOUND_ERR });
-      return;
-    }
-    console.log(vendor.otp.code);
-    if (in_otp !== vendor.otp.code) {
-      next({ status: 400, message: INCORRECT_OTP_ERR });
-      return;
-    }
-    // const verifiedResponse = await client.verify.
-    // services(TWILIO_SERVICE_SID)
-    // .verificationChecks.create({
-    //     to:`+${countrycode}${phone}`,
-    //     code: otp,
-    // });
-
-    const token = createJwtToken({ vendorId: vendor._id });
-
-    res.status(201).json({
-      type: "success",
-      message: "OTP verified successfully.",
-      data: {
-        token,
-        vendorId: vendor._id,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
 
 // --------------------- create new user ---------------------------------
 
 exports.createNewVendor = async (req, res, next) => {
   try {
-    let { email, ownerName, restaurantName, password, restaurantId } = req.body; //provide the hashed passwd from the client
-    console.log(req.body);
+    let { email, ownerName, restaurantName, password } = req.body;
+
     // let countrycode = 91
     // check duplicate phone Number
     const emailExist = await Vendor.findOne({ email });
-
     if (emailExist) {
       next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
       return;
     }
     // create new user
-    // const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
 
     const createVendor = new Vendor({
-      email,
       ownerName,
+      email,
       restaurantName,
-      password,
-      restaurantId,
+      password: hashedPassword,
+      otp: {
+        code: otp,
+        expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
+      },
     });
 
     const vendor = await createVendor.save();
@@ -110,7 +75,7 @@ exports.createNewVendor = async (req, res, next) => {
   }
 };
 
-// ------------ login ----------------------------------
+// ------------ login with password ----------------------------------
 
 exports.vendorLogin = async (req, res, next) => {
   try {
@@ -122,21 +87,59 @@ exports.vendorLogin = async (req, res, next) => {
       return;
     }
 
-    const passwordMatch = password === vendor.password ? 1 : 0;
-
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    
     if (passwordMatch) {
-      const token = createJwtToken({ vendorId: vendor._id });
+        // Generate JWT token
+        const token = createJwtToken({ userId: vendor._id });
 
-      res.status(201).json({
-        type: "success",
-        data: {
-          token,
-          vendorId: vendor._id,
-        },
-      });
+        res.status(201).json({
+            type: "success",
+            data: {
+              token,
+              userId: vendor._id,
+            },
+          });
+
     } else {
-      res.status(401).json({ error: "Invalid credentials" });
+        res.status(401).json({ error: 'Invalid credentials' });
     }
+    
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ---------------------- verify mail otp -------------------------
+
+exports.verifyOtp = async (req, res, next) => {
+  try {
+    const { in_otp, email } = req.body;
+    const vendor = await Vendor.findOne({ email });
+
+    if (!vendor) {
+      next({ status: 400, message: USER_NOT_FOUND_ERR });
+      return;
+    }
+
+
+    if (in_otp !== vendor.otp.code || vendor.otp.expiresAt < Date(Date.now() + 2 * 60 * 1000) ) {
+      next({ status: 400, message: INCORRECT_OTP_ERR });
+      return;
+    }
+
+    const token = createJwtToken({ userId: vendor._id });
+    vendor.otp=null;
+    vendor.save();
+    res.status(201).json({
+      type: "success",
+      message: "OTP verified successfully.",
+      data: {
+        token,
+        userId: vendor._id,
+      },
+    });
+
   } catch (error) {
     next(error);
   }
@@ -146,16 +149,18 @@ exports.vendorLogin = async (req, res, next) => {
 
 exports.fetchCurrentVendor = async (req, res, next) => {
   try {
-    const currentVendor = res.locals.vendor;
-
+    const currentUser = res.locals.user;
+    
     return res.status(200).json({
       type: "success",
-      message: "fetch current Vendor",
+      message: "fetch current user",
       data: {
-        vendor: currentVendor,
+        user: currentUser,
       },
     });
   } catch (error) {
     next(error);
   }
 };
+
+
