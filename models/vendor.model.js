@@ -27,7 +27,7 @@ const vendorSchema = new Schema(
     },
     restaurantId: {
       type: Number,
-      required: true,
+      required: false,
       unique: true,
     },
     email: {

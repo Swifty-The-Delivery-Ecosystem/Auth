@@ -7,6 +7,7 @@ const {
   USER_NOT_FOUND_ERR,
   MAIL_ALREADY_EXISTS_ERR,
   INCORRECT_OTP_ERR,
+  INCORRECT_CRED_ERR,
   ACCESS_DENIED_ERR,
 } = require("../errors");
 
@@ -69,7 +70,7 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.createNewUser = async (req, res, next) => {
   try {
-    let { email, name } = req.body;
+    let { email, name, passwd } = req.body; // send the hashed passwd from the client
     console.log(req.body);
     // let countrycode = 91
     // check duplicate phone Number
@@ -121,11 +122,11 @@ exports.createNewUser = async (req, res, next) => {
   }
 };
 
-// ------------ login with phone otp ----------------------------------
+// ------------ login ----------------------------------
 
-exports.loginWithPhoneOtp = async (req, res, next) => {
+exports.login = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { email, passwd } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -133,35 +134,56 @@ exports.loginWithPhoneOtp = async (req, res, next) => {
       return;
     }
 
-    user.otp = { code: otp, expiresAt: new Date(Date.now() + 2 * 60 * 1000) };
+    // if (passwd === user.password) {
+    //   res.status(200).send("You have logged in successfully!");
+    // } else {
+    //   next({ status: 400, message: INCORRECT_PASS_ERR });
+    //   return;
+    // }
 
-    // const otp = Math.floor(1000 + Math.random() * 9000);
+    const passwordMatch = password === user.password ? 1 : 0;
 
-    // const otpResponse = await client.verify
-    // .services(TWILIO_SERVICE_SID)
-    // .verifications.create({
-    //     to:`+${countrycode}${phone}`,
-    //     channel: "sms",
-    // })
-    let mailDetails = {
-      from: "adityavinay@iitbhilai.ac.in",
-      to: email,
-      subject: "Test mail",
-      text: `Your OTP is: ${user.otp.code}`,
-    };
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        console.log("Error Occurs");
-        console.log(err);
-      } else {
-        console.log("Email sent successfully");
-      }
-    });
+    if (passwordMatch) {
+      const token = createJwtToken({ userId: user._id });
 
-    res.status(200).send("OTP send successfully");
+      res.status(201).json({
+        type: "success",
+        data: {
+          token,
+          userId: user._id,
+        },
+      });
+    } else {
+      res.status(401).json({ error: INCORRECT_CRED_ERR });
+    }
   } catch (error) {
     next(error);
   }
+
+  // user.otp = { code: otp, expiresAt: new Date(Date.now() + 2 * 60 * 1000) };
+
+  // const otp = Math.floor(1000 + Math.random() * 9000);
+
+  // const otpResponse = await client.verify
+  // .services(TWILIO_SERVICE_SID)
+  // .verifications.create({
+  //     to:`+${countrycode}${phone}`,
+  //     channel: "sms",
+  // })
+  // let mailDetails = {
+  //   from: "adityavinay@iitbhilai.ac.in",
+  //   to: email,
+  //   subject: "Test mail",
+  //   text: `Your OTP is: ${user.otp.code}`,
+  // };
+  // mailTransporter.sendMail(mailDetails, function (err, data) {
+  //   if (err) {
+  //     console.log("Error Occurs");
+  //     console.log(err);
+  //   } else {
+  //     console.log("Email sent successfully");
+  //   }
+  // });
 };
 
 // --------------- fetch current user -------------------------

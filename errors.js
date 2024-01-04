@@ -16,3 +16,6 @@ exports.Email_NOT_FOUND_ERR = "email not found";
 
 exports.MAIL_ALREADY_EXISTS_ERR =
   "This mail is already registered. Please login instead.";
+
+exports.INCORRECT_CRED_ERR =
+  "The email/password you have provided is invalid. Kindly recheck it.";
