@@ -1,5 +1,6 @@
 const Vendor = require("../models/user.model");
 const nodemailer = require("nodemailer");
+const bcrypt = require('bcrypt');
 // KXPFKU96F1QHUHQ4PPDH2Z8H
 const {
   PHONE_NOT_FOUND_ERR,
@@ -26,7 +27,7 @@ const otp = Math.floor(1000 + Math.random() * 9000);
 
 exports.createNewVendor = async (req, res, next) => {
   try {
-    let { email, name, password } = req.body;
+    let { email, ownerName, restaurantName, password } = req.body;
     console.log(req.body);
     // let countrycode = 91
     // check duplicate phone Number
@@ -37,17 +38,16 @@ exports.createNewVendor = async (req, res, next) => {
       return;
     }
     // create new user
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const createVendor = new Vendor({
       email,
-      name,
-      password
-    //   otp: {
-    //     code: otp,
-    //     expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
-    //   },
+      ownerName,
+      restaurantName,
+      password: hashedPassword,
     });
 
-    const user = await createVendor.save();
+    const vendor = await createVendor.save();
 
     let mailDetails = {
       from: "adityavinay@iitbhilai.ac.in",
@@ -75,77 +75,40 @@ exports.createNewVendor = async (req, res, next) => {
 
 exports.vendorLogin = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+    const { email, password } = req.body;
+    const vendor = await Vendor.findOne({ email });
 
-    if (!user) {
-      next({ status: 400, message: EMAIL_NOT_FOUND_ERR });
-      return;
-    }
-
-    user.otp = { code: otp, expiresAt: new Date(Date.now() + 2 * 60 * 1000) };
-
-    let mailDetails = {
-      from: "adityavinay@iitbhilai.ac.in",
-      to: email,
-      subject: "Test mail",
-      text: `Your OTP is: ${user.otp.code}`,
-    };
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        console.log("Error Occurs");
-        console.log(err);
-      } else {
-        console.log("Email sent successfully");
-      }
-    });
-
-    res.status(200).send("OTP send successfully");
-  } catch (error) {
-    next(error);
-  }
-};
-
-// ---------------------- verify phone otp -------------------------
-
-exports.verifyPhoneOtp = async (req, res, next) => {
-  try {
-    const { in_otp, email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
+    if (!vendor) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
-    } 
-    console.log(user.otp.code);
-    if (in_otp !== user.otp.code) {
-      next({ status: 400, message: INCORRECT_OTP_ERR });
-      return;
     }
-    // const verifiedResponse = await client.verify.
-    // services(TWILIO_SERVICE_SID)
-    // .verificationChecks.create({
-    //     to:`+${countrycode}${phone}`,
-    //     code: otp,
-    // });
 
-    const token = createJwtToken({ userId: user._id });
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    
+    if (passwordMatch) {
+        // Generate JWT token
+        const token = createJwtToken({ userId: vendor._id });
 
-    res.status(201).json({
-      type: "success",
-      message: "OTP verified successfully",
-      data: {
-        token,
-        userId: user._id,
-      },
-    });
+        res.status(201).json({
+            type: "success",
+            data: {
+              token,
+              userId: vendor._id,
+            },
+          });
+    } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
   } catch (error) {
     next(error);
   }
 };
+
 
 // --------------- fetch current user -------------------------
 
-exports.fetchCurrentUser = async (req, res, next) => {
+exports.fetchCurrentVendor = async (req, res, next) => {
   try {
     const currentUser = res.locals.user;
 
@@ -161,20 +124,4 @@ exports.fetchCurrentUser = async (req, res, next) => {
   }
 };
 
-// --------------- admin access only -------------------------
 
-exports.handleAdmin = async (req, res, next) => {
-  try {
-    const currentUser = res.locals.user;
-
-    return res.status(200).json({
-      type: "success",
-      message: "Okay you are admin!!",
-      data: {
-        user: currentUser,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-};
