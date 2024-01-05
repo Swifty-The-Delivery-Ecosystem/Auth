@@ -18,6 +18,10 @@ const userSchema = new Schema(
       enum: ["ADMIN", "USER"],
       default: "USER",
     },
+    password: {
+      type: String,
+      required: true,
+    },
     otp: {
       code: {
         type: Number,
