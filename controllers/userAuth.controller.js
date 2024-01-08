@@ -9,6 +9,7 @@ const {
   INCORRECT_OTP_ERR,
   INCORRECT_CRED_ERR,
   ACCESS_DENIED_ERR,
+  EMAIL_NOT_FOUND_ERR
 } = require("../errors");
 
 const { checkPassword, hashPassword } = require("../utils/password.util");
@@ -70,7 +71,7 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.createNewUser = async (req, res, next) => {
   try {
-    let { email, name, password } = req.body; // send the hashed passwd from the client
+    let { email, name, password, phone } = req.body; // send the hashed passwd from the client
     // let countrycode = 91
     // check duplicate phone Number
     const emailExist = await User.findOne({ email });
@@ -89,6 +90,7 @@ exports.createNewUser = async (req, res, next) => {
         code: otp,
         expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
       },
+      phone,
     });
 
     // save user
@@ -126,7 +128,7 @@ exports.createNewUser = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
   try {
-    const { email, passwd } = req.body;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {

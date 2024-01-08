@@ -42,11 +42,12 @@ const vendorSchema = new Schema(
     },
     phone: {
       type: String,
-      // required: true,
+      required: true,
       trim: true,
     },
-    address: {
-      street: Number, // Index according to the list [Mess, GH, Acad, Delta]
+    location: {
+      type: Number,
+      required: true // Index according to the list [Mess, GH, Acad, Delta]
     },
     // cuisineType: {
     //   type: Number, //Index according to the list [Drinks, Food Items]

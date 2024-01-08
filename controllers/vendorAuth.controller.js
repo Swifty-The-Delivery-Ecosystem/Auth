@@ -27,10 +27,9 @@ let mailTransporter = nodemailer.createTransport({
 
 exports.createNewVendor = async (req, res, next) => {
   try {
-    let { email, ownerName, restaurantName, password, restaurantId } = req.body;
+    let { email, ownerName, restaurantName, password, restaurantId,location, phone } = req.body;
 
     // let countrycode = 91
-    // check duplicate phone Number
     const emailExist = await Vendor.findOne({ email });
     if (emailExist) {
       next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
@@ -48,6 +47,8 @@ exports.createNewVendor = async (req, res, next) => {
         code: otp,
         expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
       },
+      location,
+      phone
     });
 
     const vendor = await createVendor.save();
@@ -127,7 +128,6 @@ exports.verifyOtp = async (req, res, next) => {
     const token = createJwtToken({ userId: vendor._id });
     vendor.otp=null;
     vendor.save();
-    console.log(vendor)
     res.status(201).json({
       type: "success",
       message: "OTP verified successfully.",
