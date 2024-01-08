@@ -13,14 +13,21 @@ const userSchema = new Schema(
       trim: true,
       unique: true,
     },
-    role: {
-      type: String,
-      enum: ["ADMIN", "USER"],
-      default: "USER",
-    },
     password: {
       type: String,
       required: true,
+    },
+    phone:{
+      type: Number,
+      required:true,
+      unque: true
+    },
+    favourite_vendors: {
+      type: [String],  
+    },
+    primary_location:{
+      type: Number,
+      required:true
     },
     otp: {
       code: {
@@ -30,7 +37,11 @@ const userSchema = new Schema(
         type: Date,
       },
     },
+    is_Veg: {
+      type: Boolean
+    },
   },
+  
   { timestamps: true }
 );
 
