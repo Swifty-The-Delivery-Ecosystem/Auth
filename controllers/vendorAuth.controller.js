@@ -173,7 +173,13 @@ exports.updateVendorProfile = async(re,res,next) => {
     }
     const updatedVendor = await vendor.save();
 
-    res.json(updatedVendor);
+    return res.status(200).json({
+      type: "success",
+      message: "updated profile",
+      data: {
+        user: updatedVendor,
+      },
+    });
   } catch (error) {
     next(error);
   }

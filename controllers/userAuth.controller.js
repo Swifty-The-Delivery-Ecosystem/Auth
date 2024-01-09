@@ -237,7 +237,13 @@ exports.updateUserProfile = async(re,res,next) => {
     }
     const updatedUser = await User.save();
 
-    res.json(updatedUser);
+    return res.status(200).json({
+      type: "success",
+      message: "updated profile",
+      data: {
+        user: updatedUser,
+      },
+    });
   } catch (error) {
     next(error);
   }

@@ -21,3 +21,5 @@ exports.INCORRECT_CRED_ERR =
   "The email/password you have provided is invalid. Kindly recheck it.";
 
 exports.EMAIL_NOT_FOUND_ERR = "Email not found";
+
+exports.ADMIN_NOT_FOUND = "Admin not found";
