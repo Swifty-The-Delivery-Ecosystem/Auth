@@ -159,3 +159,22 @@ exports.fetchCurrentVendor = async (req, res, next) => {
     next(error);
   }
 };
+
+// --------------- Update vendor profile -------------------------
+
+exports.updateVendorProfile = async(re,res,next) => {
+  try{
+    const currentVendor = res.locals.user;
+    const vendor = await Vendor.findById(currentVendor.userId);
+    for (const [key, value] of Object.entries(req.body)) {
+      if (key !== 'email') {
+        vendor[key] = value;
+      }
+    }
+    const updatedVendor = await vendor.save();
+
+    res.json(updatedVendor);
+  } catch (error) {
+    next(error);
+  }
+}
