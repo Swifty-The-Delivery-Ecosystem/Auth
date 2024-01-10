@@ -9,6 +9,7 @@ const {
   createNewUser,
   verifyOtp,
   handleAdmin,
+  updateUserProfile,
 } = require("../controllers/userAuth.controller");
 
 router.post("/register", createNewUser);
@@ -20,5 +21,7 @@ router.post("/verify", verifyOtp);
 router.get("/currentUser", checkAuth, fetchCurrentUser);
 
 router.get("/admin", checkAuth, checkAdmin, handleAdmin);
+
+router.put("/updateUserProfile", checkAuth, updateUserProfile);
 
 module.exports = router;

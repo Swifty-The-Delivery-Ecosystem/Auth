@@ -35,6 +35,7 @@ const vendorSchema = new Schema(
       required: true,
       trim: true,
       unique: true,
+      immutable:true
     },
     password: {
       type: String,
