@@ -224,3 +224,28 @@ exports.handleAdmin = async (req, res, next) => {
     next(error);
   }
 };
+
+// --------------- Update vendor profile -------------------------
+
+exports.updateUserProfile = async(re,res,next) => {
+  try{
+    const currentUser = res.locals.user;
+    const User = await User.findById(currentUser.userId);
+    for (const [key, value] of Object.entries(req.body)) {
+      if (key !== 'email') {
+        User[key] = value;
+      }
+    }
+    const updatedUser = await User.save();
+
+    return res.status(200).json({
+      type: "success",
+      message: "updated profile",
+      data: {
+        user: updatedUser,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+}
