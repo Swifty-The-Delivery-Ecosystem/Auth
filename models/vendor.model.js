@@ -62,6 +62,11 @@ const vendorSchema = new Schema(
       type: Boolean,
       default: true,
     },
+    status: {
+      type: String,
+      enum: ['active',  'in process'],
+      default: 'in process', 
+    },
     ratings: [ratingSchema],
     images: [String],
     otp: {
