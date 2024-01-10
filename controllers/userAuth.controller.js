@@ -71,7 +71,7 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.createNewUser = async (req, res, next) => {
   try {
-    let { email, name, password, phone } = req.body; // send the hashed passwd from the client
+    let { email, name, password, phone,primary_location } = req.body; // send the hashed passwd from the client
     // let countrycode = 91
     // check duplicate phone Number
     const emailExist = await User.findOne({ email });
@@ -91,6 +91,7 @@ exports.createNewUser = async (req, res, next) => {
         expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
       },
       phone,
+      primary_location
     });
 
     // save user
