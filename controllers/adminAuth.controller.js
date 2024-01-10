@@ -1,5 +1,6 @@
 const Admin = require("../models/admin.model");
 const Vendor = require("../models/vendor.model")
+const { createJwtToken } = require("../utils/token.util");
 const {
     
     ADMIN_NOT_FOUND_ERR,
@@ -47,7 +48,8 @@ const {
  exports.vendorApplicationStatusView = async (req, res, next) => {
     try {
 
-        const newVendors = await Vendor.find({ status: 'in process' }).select(_id,restaurantName,ownerName,location,phone);
+      const newVendors = await Vendor.find({ status: 'in process' }).select('_id restaurantName ownerName location phone');
+
 
         res.status(201).json({
             type: "success",
@@ -62,7 +64,6 @@ const {
   };
   
  // --------------- Change Restaurant application status ------------------------
-
 
  exports.changeVendorApplicationStatus = async (req, res, next) => {
     const { vendorId } = req.params;
@@ -86,4 +87,3 @@ const {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   };
-  
