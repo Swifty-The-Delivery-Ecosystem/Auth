@@ -38,11 +38,13 @@ exports.verifyOtp = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
+      console.log("user not found")
       return;
     }
     console.log(user.otp.code);
     if (in_otp !== user.otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
+      console.log("incorrect otp")
       return;
     }
     // const verifiedResponse = await client.verify.
