@@ -27,7 +27,7 @@ const userSchema = new Schema(
     },
     primary_location:{
       type: Number,
-      // required:true
+      required:true
     },
     otp: {
       code: {
