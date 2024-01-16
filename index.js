@@ -4,7 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 
-const { PORT, MONGODB_URI, NODE_ENV,ORIGIN } = require("./config");
+const { PORT, MONGODB_URI,ORIGIN } = require("./config");
 const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
 
 // routes
@@ -27,12 +27,6 @@ app.use(
   })
 );
 
-// log in development environment
-
-if (NODE_ENV === "development") {
-  const morgan = require("morgan");
-  app.use(morgan("dev"));
-}
 
 // index route
 
