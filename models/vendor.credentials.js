@@ -1,7 +1,7 @@
 const { model, Schema } = require("mongoose");
 
 const vendorCredentialsSchema = new Schema({
-    vendorId: {
+    vendor_id: {
         type: Schema.Types.ObjectId,
         ref: 'Vendor',
         required: true,
@@ -20,4 +20,4 @@ const vendorCredentialsSchema = new Schema({
   },
 });
 
-module.exports = model("Credentials", vendorCredentialsSchema);
+module.exports = model("VendorCredentials", vendorCredentialsSchema);

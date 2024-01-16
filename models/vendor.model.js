@@ -12,10 +12,6 @@ const vendorSchema = new Schema(
       required: true,
       trim: true
     },
-    restaurantId: {
-      type: Number,
-      unique: true
-    },
     phone: {
       type: String,
       required: true,
@@ -24,9 +20,6 @@ const vendorSchema = new Schema(
     location: {
       type: Number,
       required: true // Index according to the list [Mess, GH, Acad, Delta]
-    },
-    openingHours: {
-      type: String // 9 am to 8 pm
     },
     isActive: {
       type: Boolean,
@@ -40,6 +33,12 @@ const vendorSchema = new Schema(
     ratings: {
       type: Number
     },
+    delivery_partners: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'DeliveryPartner',
+      },
+    ],
     images: [String],
     tags:[String],
   },
