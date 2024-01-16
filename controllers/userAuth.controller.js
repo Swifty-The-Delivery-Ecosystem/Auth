@@ -1,19 +1,20 @@
 const User = require("../models/user.model");
-const nodemailer = require("nodemailer");
+const UserCredentials = require("../models/user.credentials");
+const OTP = require("../models/otp.model");
 
+const nodemailer = require("nodemailer");
 const {
-  // PHONE_NOT_FOUND_ERR,
-  // PHONE_ALREADY_EXISTS_ERR,
   USER_NOT_FOUND_ERR,
   MAIL_ALREADY_EXISTS_ERR,
   INCORRECT_OTP_ERR,
   INCORRECT_CRED_ERR,
   ACCESS_DENIED_ERR,
-  EMAIL_NOT_FOUND_ERR
+  EMAIL_NOT_FOUND_ERR,
+  OTP_EXPIRED
 } = require("../errors");
 
-const { checkPassword, hashPassword } = require("../utils/password.util");
 const { createJwtToken } = require("../utils/token.util");
+
 // const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
 //   process.env;
 // const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
@@ -28,21 +29,28 @@ let mailTransporter = nodemailer.createTransport({
   },
 });
 
-const otp = Math.floor(1000 + Math.random() * 8000);
+
 
 // ---------------------- verify mail otp -------------------------
 
 exports.verifyOtp = async (req, res, next) => {
   try {
     const { in_otp, email } = req.body;
+    const currentDateTime = new Date();
+
     const user = await User.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
     }
-    console.log(user.otp.code);
-    if (in_otp !== user.otp.code) {
+    const otp = await OTP.findOne({user_id: user._id});
+  
+    if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
+      return;
+    }
+    if (otp.expiresAt < currentDateTime) {
+      next({ status: 400, message: OTP_EXPIRED});
       return;
     }
     // const verifiedResponse = await client.verify.
@@ -71,9 +79,8 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.createNewUser = async (req, res, next) => {
   try {
-    let { email, name, password, phone } = req.body; // send the hashed passwd from the client
-    // let countrycode = 91
-    // check duplicate phone Number
+    let { email, name, password, phone, primary_location } = req.body; // send the hashed passwd from the client
+   
     const emailExist = await User.findOne({ email });
 
     if (emailExist) {
@@ -81,28 +88,39 @@ exports.createNewUser = async (req, res, next) => {
       return;
     }
     // create new user
+    
     const createUser = new User({
-      email,
       name,
-      role: "USER",
-      password,
-      otp: {
-        code: otp,
-        expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
-      },
       phone,
+      email,
+      primary_location,
+      isVeg
     });
-
     // save user
     const user = await createUser.save();
 
+    const createUserCredentials = new UserCredentials({
+      user_id:user._id,
+      email,
+      password
+    });
+
+    createUserCredentials.save();
+
+    const otp = Math.floor(1000 + Math.random() * 8000);
     let mailDetails = {
       from: "adityavinay@iitbhilai.ac.in",
       to: email,
       subject: "OTP for creating account at Swifty.",
       text: `Your OTP is: ${otp}`,
     };
-
+    const sentOtp = new OTP({
+      code: otp,
+      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), // Set expiration time 2 minutes
+      entity: user._id, // Reference to the user document
+      entityModel: 'User', // Indicates that this OTP is for a user
+    });
+    
     mailTransporter.sendMail(mailDetails, function (err, data) {
       if (err) {
         console.log("Error Occurs");
@@ -135,13 +153,6 @@ exports.login = async (req, res, next) => {
       next({ status: 400, message: EMAIL_NOT_FOUND_ERR });
       return;
     }
-
-    // if (passwd === user.password) {
-    //   res.status(200).send("You have logged in successfully!");
-    // } else {
-    //   next({ status: 400, message: INCORRECT_PASS_ERR });
-    //   return;
-    // }
 
     const passwordMatch = password === user.password ? 1 : 0;
 
