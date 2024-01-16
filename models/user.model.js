@@ -1,4 +1,4 @@
-const { model, Schema, trusted } = require("mongoose");
+const { model, Schema } = require("mongoose");
 
 const userSchema = new Schema(
   {
@@ -12,23 +12,19 @@ const userSchema = new Schema(
       required: true,
       trim: true,
       unique: true,
-      immutable:true
+      immutable: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
-    phone:{
+    phone: {
       type: Number,
-      required:true,
-      unque: true
+      required: true,
+      unique: true,
     },
     favourite_vendors: {
-      type: [String],  
+      type: [String],
     },
-    primary_location:{
+    primary_location: {
       type: Number,
-      required:true
+      required: true,
     },
     otp: {
       code: {
@@ -39,10 +35,9 @@ const userSchema = new Schema(
       },
     },
     is_Veg: {
-      type: Boolean
+      type: Boolean,
     },
   },
-  
   { timestamps: true }
 );
 
