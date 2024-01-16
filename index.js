@@ -46,9 +46,9 @@ app.get("/", (req, res) => {
 
 // routes middlewares
 
-app.use("/api/userAuth", userAuthRoutes);
-app.use("/api/vendorAuth", vendorAuthRoutes);
-app.use("/api/adminAuth", adminAuthRoutes);
+app.use("/api/v1/auth/users", userAuthRoutes);
+app.use("/api/v1/auth/vendors", vendorAuthRoutes);
+app.use("/api/v1/auth/admins", adminAuthRoutes);
 
 // page not found error handling  middleware
 

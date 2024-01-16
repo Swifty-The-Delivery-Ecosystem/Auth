@@ -17,8 +17,8 @@ router.post("/login", login);
 
 router.post("/verify", verifyOtp);
 
-router.get("/currentUser", checkAuth, fetchCurrentUser);
+router.get("/:userId", checkAuth, fetchCurrentUser);
 
-router.put("/updateUserProfile", checkAuth, updateUserProfile);
+router.put("/:userId/update", checkAuth, updateUserProfile);
 
 module.exports = router;

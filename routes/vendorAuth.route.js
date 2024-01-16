@@ -17,8 +17,8 @@ router.post("/login", vendorLogin);
 
 router.post("/verify", verifyOtp);
 
-router.get("/currentVendor", checkAuth, fetchCurrentVendor);
+router.get("/:vendorId", checkAuth, fetchCurrentVendor);
 
-router.put("/updateVendorProfile", checkAuth, updateVendorProfile);
+router.put("/:userId/update", checkAuth, updateVendorProfile);
 
 module.exports = router;

@@ -49,8 +49,6 @@ const {
     try {
 
       const newVendors = await Vendor.find({ status: 'in process' }).select('_id restaurantName ownerName location phone');
-
-
         res.status(201).json({
             type: "success",
             data: {
