@@ -90,7 +90,7 @@ const {
  // --------------- Debar Vendor ------------------------
 
  exports.debarVendor = async (req, res, next) => {
-  const { vendorId } = req.body.vendorId;
+  const { vendorId } = req.body;
   try {
     const debarVendor = await Vendor.findOneAndUpdate(
       { _id: vendorId },
@@ -102,7 +102,7 @@ const {
       return res.status(404).json({ error: 'Vendor not found' });
     }
 
-    res.status(200).send("Vendors debarred successfully");
+    res.status(200).send("Vendor debarred successfully");
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -112,9 +112,9 @@ const {
 // --------------- GET all Users ------------------------
 
 exports.getAllUsers = async (req, res, next) => {
+
   try {
     const users = await User.find({});
-
     if (!users) {
       return res.status(404).json({ error: 'users not found' });
     }
