@@ -1,18 +1,20 @@
 const Vendor = require("../models/vendor.model");
+const VendorCredentials = require("../models/vendor.credentials");
+const OTP = require("../models/otp.model");
+
 const nodemailer = require("nodemailer");
 const bcrypt = require('bcrypt');
-// KXPFKU96F1QHUHQ4PPDH2Z8H
+
 const {
-  PHONE_NOT_FOUND_ERR,
-  PHONE_ALREADY_EXISTS_ERR,
   USER_NOT_FOUND_ERR,
   INCORRECT_OTP_ERR,
-  ACCESS_DENIED_ERR,
+  OTP_EXPIRED_ERR
 } = require("../errors");
 
 // const { checkPassword, hashPassword } = require("../utils/password.util");
 const { createJwtToken } = require("../utils/token.util");
-const otp = Math.floor(1000 + Math.random() * 9000);
+const OTP = require("../models/otp.model");
+
 
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
@@ -27,7 +29,7 @@ let mailTransporter = nodemailer.createTransport({
 
 exports.createNewVendor = async (req, res, next) => {
   try {
-    let { email, ownerName, restaurantName, password, restaurantId,location, phone } = req.body;
+    let { email, ownerName, restaurantName, password, restaurantId,location, phone,supported_location } = req.body;
 
     // let countrycode = 91
     const emailExist = await Vendor.findOne({ email });
@@ -42,16 +44,27 @@ exports.createNewVendor = async (req, res, next) => {
       email,
       restaurantName,
       restaurantId,
-      password,
-      otp: {
-        code: otp,
-        expiresAt: new Date(Date.now() + 2 * 60 * 1000), // Set expiration to 2 minutes from now
-      },
       location,
+      supported_location ,
       phone
     });
-
     const vendor = await createVendor.save();
+
+    const createVendorCredentials = new VendorCredentials({
+      email,
+      password,
+      vendor_id:vendor._id
+    });
+    createVendorCredentials.save();
+
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    const sentOtp = new OTP({
+      code: otp,
+      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), // Set expiration time 2 minutes
+      entity: vendor._id, // Reference to the user document
+      entityModel: 'Vendor', // Indicates that this OTP is for a user
+    });
+    await sentOtp.save();
 
     let mailDetails = {
       from: "adityavinay@iitbhilai.ac.in",
@@ -80,7 +93,7 @@ exports.createNewVendor = async (req, res, next) => {
 exports.vendorLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const vendor = await Vendor.findOne({ email });
+    const vendor = await VendorCredentials.findOne({ email });
 
     if (!vendor) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
@@ -90,7 +103,7 @@ exports.vendorLogin = async (req, res, next) => {
     const passwordMatch = vendor.password=== password;
     if (passwordMatch) {
         // Generate JWT token
-        const token = createJwtToken({ userId: vendor._id });
+        const token = createJwtToken({ userId: vendor.vendor_id });
 
         res.status(201).json({
             type: "success",
@@ -120,8 +133,16 @@ exports.verifyOtp = async (req, res, next) => {
       return;
     }
 
-    if (in_otp !== vendor.otp.code || vendor.otp.expiresAt < Date(Date.now() + 2 * 60 * 1000) ) {
+    const otp = await OTP.findOne({ vendor_id: vendor._id })
+    .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
+    .limit(1);
+    
+    if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
+      return;
+    }
+    if (otp.expiresAt < currentDateTime) {
+      next({ status: 400, message: OTP_EXPIRED_ERR});
       return;
     }
 

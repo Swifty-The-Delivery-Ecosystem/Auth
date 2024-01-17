@@ -43,8 +43,10 @@ exports.verifyOtp = async (req, res, next) => {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
     }
-    const otp = await OTP.findOne({user_id: user._id});
-  
+    const otp = await OTP.findOne({ user_id: user._id })
+    .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
+    .limit(1);
+    
     if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
       return;
@@ -120,7 +122,7 @@ exports.createNewUser = async (req, res, next) => {
       entity: user._id, // Reference to the user document
       entityModel: 'User', // Indicates that this OTP is for a user
     });
-    
+    await sentOtp.save();
     mailTransporter.sendMail(mailDetails, function (err, data) {
       if (err) {
         console.log("Error Occurs");
@@ -147,7 +149,7 @@ exports.createNewUser = async (req, res, next) => {
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await UserCredentials.findOne({ email });
 
     if (!user) {
       next({ status: 400, message: EMAIL_NOT_FOUND_ERR });
@@ -157,7 +159,7 @@ exports.login = async (req, res, next) => {
     const passwordMatch = password === user.password ? 1 : 0;
 
     if (passwordMatch) {
-      const token = createJwtToken({ userId: user._id });
+      const token = createJwtToken({ userId: user.user_id });
 
       res.status(201).json({
         type: "success",

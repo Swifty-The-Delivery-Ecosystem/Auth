@@ -23,4 +23,4 @@ exports.INCORRECT_CRED_ERR =
 exports.EMAIL_NOT_FOUND_ERR = "Email not found";
 
 exports.ADMIN_NOT_FOUND = "Admin not found";
-exports.OTP_EXPIRED = "OTP has expired";
+exports.OTP_EXPIRED_ERR = "OTP has expired";
