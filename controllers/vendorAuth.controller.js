@@ -8,13 +8,12 @@ const bcrypt = require('bcrypt');
 const {
   USER_NOT_FOUND_ERR,
   INCORRECT_OTP_ERR,
-  OTP_EXPIRED_ERR
+  OTP_EXPIRED_ERR,
+  EMAIL_ALREADY_EXISTS_ERR
 } = require("../errors");
 
 // const { checkPassword, hashPassword } = require("../utils/password.util");
 const { createJwtToken } = require("../utils/token.util");
-const OTP = require("../models/otp.model");
-
 
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
@@ -29,8 +28,8 @@ let mailTransporter = nodemailer.createTransport({
 
 exports.createNewVendor = async (req, res, next) => {
   try {
-    let { email, ownerName, restaurantName, password, restaurantId,location, phone,supported_location } = req.body;
-
+    let { email, ownerName, restaurantName, password,location, phone,supported_location } = req.body;
+    
     // let countrycode = 91
     const emailExist = await Vendor.findOne({ email });
     if (emailExist) {
@@ -43,7 +42,6 @@ exports.createNewVendor = async (req, res, next) => {
       ownerName,
       email,
       restaurantName,
-      restaurantId,
       location,
       supported_location ,
       phone
@@ -55,7 +53,7 @@ exports.createNewVendor = async (req, res, next) => {
       password,
       vendor_id:vendor._id
     });
-    createVendorCredentials.save();
+    await createVendorCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     const sentOtp = new OTP({
@@ -94,7 +92,7 @@ exports.vendorLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const vendor = await VendorCredentials.findOne({ email });
-
+    
     if (!vendor) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
@@ -127,13 +125,15 @@ exports.vendorLogin = async (req, res, next) => {
 exports.verifyOtp = async (req, res, next) => {
   try {
     const { in_otp, email } = req.body;
+    console.log(req.body);
     const vendor = await Vendor.findOne({ email });
+    const currentDateTime = new Date();
     if (!vendor) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
     }
 
-    const otp = await OTP.findOne({ vendor_id: vendor._id })
+    const otp = await OTP.findOne({ entity: vendor._id })
     .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
     .limit(1);
     

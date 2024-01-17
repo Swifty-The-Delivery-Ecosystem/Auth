@@ -26,14 +26,6 @@ const userSchema = new Schema(
       type: Number,
       required: true,
     },
-    otp: {
-      code: {
-        type: Number,
-      },
-      expiresAt: {
-        type: Date,
-      },
-    },
     is_Veg: {
       type: Boolean,
     },

@@ -12,6 +12,13 @@ const vendorSchema = new Schema(
       required: true,
       trim: true
     },
+    email: {
+      type: String,
+      required: true,
+      trim: true,
+      unique: true,
+      immutable: true,
+    },
     phone: {
       type: String,
       required: true,

@@ -6,7 +6,7 @@ const checkAuth = require("../middlewares/checkAuth");
 const {adminLogin, vendorApplicationStatusView, changeVendorApplicationStatus} = require("../controllers/adminAuth.controller")
 
 
-router.post("/adminLogin", adminLogin);
+router.post("/login", adminLogin);
 router.get("/viewNewVendors",  checkAdmin,vendorApplicationStatusView);
 router.put("vendors/:vendorId/status", checkAdmin,changeVendorApplicationStatus );
 

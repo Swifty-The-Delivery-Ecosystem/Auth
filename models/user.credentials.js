@@ -19,4 +19,4 @@ const userCredentialsSchema = new Schema({
   },
 });
 
-module.exports = model("Credentials", userCredentialsSchema);
+module.exports = model("UserCredentials", userCredentialsSchema);

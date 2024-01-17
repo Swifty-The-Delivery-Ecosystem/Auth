@@ -10,7 +10,7 @@ const {
   INCORRECT_CRED_ERR,
   ACCESS_DENIED_ERR,
   EMAIL_NOT_FOUND_ERR,
-  OTP_EXPIRED
+  OTP_EXPIRED_ERR
 } = require("../errors");
 
 const { createJwtToken } = require("../utils/token.util");
@@ -43,16 +43,16 @@ exports.verifyOtp = async (req, res, next) => {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       return;
     }
-    const otp = await OTP.findOne({ user_id: user._id })
+    const otp = await OTP.findOne({ entity: user._id })
     .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
     .limit(1);
-    
+
     if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
       return;
     }
     if (otp.expiresAt < currentDateTime) {
-      next({ status: 400, message: OTP_EXPIRED});
+      next({ status: 400, message: OTP_EXPIRED_ERR});
       return;
     }
     // const verifiedResponse = await client.verify.
