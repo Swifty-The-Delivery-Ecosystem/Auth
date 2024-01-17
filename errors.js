@@ -24,3 +24,5 @@ exports.EMAIL_NOT_FOUND_ERR = "Email not found";
 
 exports.ADMIN_NOT_FOUND = "Admin not found";
 exports.OTP_EXPIRED_ERR = "OTP has expired";
+
+exports.VENDOR_NOT_PERMITTED = "Vendor is not verified or has been debarred"
