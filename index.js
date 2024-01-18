@@ -6,7 +6,7 @@ require("dotenv").config();
 
 const { PORT, MONGODB_URI,ORIGIN } = require("./config");
 const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
-
+console.log(API_ENDPOINT_NOT_FOUND_ERR)
 // routes
 const userAuthRoutes = require("./routes/userAuth.route");
 const vendorAuthRoutes = require("./routes/vendorAuth.route");

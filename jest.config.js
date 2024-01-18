@@ -193,6 +193,7 @@ const config = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+  setupFiles: ['./jest.setup.js'],
 };
 
 module.exports = config;
