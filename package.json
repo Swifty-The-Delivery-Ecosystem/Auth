@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start": "env-cmd -f .env.development node .env",
-    "start:staging": "env-cmd -f .env.staging node .env.staging",
-    "start:production": "env-cmd -f .env.production node .env.production",
+    "start": "env-cmd -f .env.development node index.js",
+    "start:staging": "env-cmd -f .env.staging node index.js",
+    "start:production": "env-cmd -f .env.production node index.js",
     "dev": "nodemon index.js"
   },
   "author": "",
