@@ -6,13 +6,14 @@ const request = require('supertest');
 const randomUtils = require('../../../utils/random.util');
 
 describe('POST /register', function(){
-  it('responds with OTP sent successfully message', async(done)=>{
+  it('responds with OTP sent successfully message', function(done){
     request(app)
       .post('/api/v1/auth/users/register')
       .send({
         name : randomUtils.randomEmail(),
         phone : randomUtils.randomPhone(),
         email : randomUtils.randomEmail(),
+        password: randomUtils.randomEmail(),
         primary_location : randomUtils.randomLocation(),
         is_veg : randomUtils.randomVeg()
       })
