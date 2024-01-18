@@ -15,12 +15,6 @@ const {
 
 const { createJwtToken } = require("../utils/token.util");
 
-// const { TWILIO_SERVICE_SID, TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN } =
-//   process.env;
-// const client = require("twilio")(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, {
-//   lazyloading: true,
-// });
-
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -45,7 +39,7 @@ exports.verifyOtp = async (req, res, next) => {
       return;
     }
     const otp = await OTP.findOne({ entity: user._id })
-    .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
+    .sort({ createdAt: -1 }) 
     .limit(1);
 
     if (in_otp !== otp.code) {
@@ -57,12 +51,7 @@ exports.verifyOtp = async (req, res, next) => {
       next({ status: 400, message: OTP_EXPIRED_ERR});
       return;
     }
-    // const verifiedResponse = await client.verify.
-    // services(TWILIO_SERVICE_SID)
-    // .verificationChecks.create({
-    //     to:`+${countrycode}${phone}`,
-    //     code: otp,
-    // });
+
 
     const token = createJwtToken({ userId: user._id });
 
@@ -84,7 +73,7 @@ exports.verifyOtp = async (req, res, next) => {
 exports.createNewUser = async (req, res, next) => {
   try {
 
-    let { email, name, password, phone, primary_location } = req.body; // send the hashed passwd from the client
+    let { email, name, password, phone, primary_location, is_veg } = req.body; // send the hashed passwd from the client
 
     const emailExist = await User.findOne({ email });
 
@@ -92,16 +81,14 @@ exports.createNewUser = async (req, res, next) => {
       next({ status: 400, message: MAIL_ALREADY_EXISTS_ERR });
       return;
     }
-    // create new user
+    
     
     const createUser = new User({
       name,
       phone,
       email,
       primary_location,
-      isVeg
-      primary_location
-
+      is_veg,
     });
     // save user
     const user = await createUser.save();
@@ -123,9 +110,9 @@ exports.createNewUser = async (req, res, next) => {
     };
     const sentOtp = new OTP({
       code: otp,
-      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), // Set expiration time 2 minutes
-      entity: user._id, // Reference to the user document
-      entityModel: 'User', // Indicates that this OTP is for a user
+      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), 
+      entity: user._id,   
+      entityModel: 'User', 
     });
     await sentOtp.save();
     mailTransporter.sendMail(mailDetails, function (err, data) {
@@ -136,12 +123,7 @@ exports.createNewUser = async (req, res, next) => {
         console.log("Email sent successfully");
       }
     });
-    // const otpResponse = await client.verify
-    // .services(TWILIO_SERVICE_SID)
-    // .verifications.create({
-    //     to:`+${countrycode}${phone}`,
-    //     channel: "sms",
-    // })
+ 
 
     res.status(200).send("OTP sent successfully to your email address.");
   } catch (error) {
@@ -180,30 +162,6 @@ exports.login = async (req, res, next) => {
     next(error);
   }
 
-  // user.otp = { code: otp, expiresAt: new Date(Date.now() + 2 * 60 * 1000) };
-
-  // const otp = Math.floor(1000 + Math.random() * 9000);
-
-  // const otpResponse = await client.verify
-  // .services(TWILIO_SERVICE_SID)
-  // .verifications.create({
-  //     to:`+${countrycode}${phone}`,
-  //     channel: "sms",
-  // })
-  // let mailDetails = {
-  //   from: "adityavinay@iitbhilai.ac.in",
-  //   to: email,
-  //   subject: "Test mail",
-  //   text: `Your OTP is: ${user.otp.code}`,
-  // };
-  // mailTransporter.sendMail(mailDetails, function (err, data) {
-  //   if (err) {
-  //     console.log("Error Occurs");
-  //     console.log(err);
-  //   } else {
-  //     console.log("Email sent successfully");
-  //   }
-  // });
 };
 
 // --------------- fetch current user -------------------------

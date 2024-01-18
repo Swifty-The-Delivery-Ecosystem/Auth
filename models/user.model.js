@@ -26,7 +26,7 @@ const userSchema = new Schema(
       type: Number,
       required: true,
     },
-    is_Veg: {
+    is_veg: {
       type: Boolean,
     },
   },
