@@ -12,6 +12,7 @@ const {
 } = require("../../../errors");
 
 
+
 describe('POST /register', function(){
   test('responds with OTP sent successfully message', async ()=>{
     const res = await request(app)
