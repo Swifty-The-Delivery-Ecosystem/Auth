@@ -10,10 +10,10 @@ describe('POST /register', function(){
     request(app)
       .post('/api/v1/auth/users/register')
       .send({
-        name : randomUtils.randomEmail(),
+        name : randomUtils.randomName(),
         phone : randomUtils.randomPhone(),
         email : randomUtils.randomEmail(),
-        password: randomUtils.randomEmail(),
+        password: randomUtils.randomPassword(),
         primary_location : randomUtils.randomLocation(),
         is_veg : randomUtils.randomVeg()
       })

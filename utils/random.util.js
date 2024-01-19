@@ -21,3 +21,8 @@ exports.randomVeg = ()=>{
   return [0,1][crypto.randomInt(0,2)];
 }
 
+exports.randomPassword = ()=>{
+  return randomString.generate(10);
+
+}
+
