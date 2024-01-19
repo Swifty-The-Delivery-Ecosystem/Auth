@@ -185,7 +185,7 @@ exports.fetchCurrentUser = async (req, res, next) => {
 
 // --------------- Update vendor profile -------------------------
 
-exports.updateUserProfile = async(re,res,next) => {
+exports.updateUserProfile = async(req,res,next) => {
   try{
     const currentUser = res.locals.user;
     const User = await User.findById(currentUser.userId);

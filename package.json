@@ -8,7 +8,6 @@
     "start": "env-cmd -f .env.development node index.js",
     "start:staging": "env-cmd -f .env.staging node index.js",
     "start:production": "env-cmd -f .env.production node index.js",
-    "start:development": "env-cmd -f .env.development node index.js",
     "dev": "nodemon index.js"
   },
   "author": "",
