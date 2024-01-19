@@ -117,15 +117,16 @@ exports.createNewUser = async (req, res, next) => {
     await sentOtp.save();
     mailTransporter.sendMail(mailDetails, function (err, data) {
       if (err) {
-        console.log("Error Occurs");
-        console.log(err);
+        //TODO: Email doesn't exist not handled.
+        // console.log("Error Occurs");
+        // console.log(err);
       } else {
-        console.log("Email sent successfully");
+        // console.log("Email sent successfully");
       }
     });
  
 
-    res.status(200).send("OTP sent successfully to your email address.");
+    res.status(200).json("OTP sent successfully to your email address.");
   } catch (error) {
     next(error);
   }
