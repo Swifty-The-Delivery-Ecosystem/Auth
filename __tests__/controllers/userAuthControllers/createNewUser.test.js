@@ -26,7 +26,6 @@ describe('POST /register', function(){
         is_veg : randomUtils.randomVeg()
       })
       .set('Accept', 'application/json');
-    console.log(res.body);
 
     if(res.statusCode == 400) {
       expect(res.body).toBe( MAIL_ALREADY_EXISTS_ERR );

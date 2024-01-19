@@ -58,8 +58,6 @@ describe('PUT /api/v1/auth/users/:user_id/update', ()=>{
 
     token = res.body.data.token;
     user_id = res.body.data.userId;
-    console.log(token);
-    console.log(user_id);
   })
 
   test('Update user', async()=>{

@@ -22,7 +22,6 @@ exports.verifyOtp = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
-      console.log("user not found")
       return;
     }
     const otp = await OTP.findOne({ entity: user._id })
@@ -31,7 +30,6 @@ exports.verifyOtp = async (req, res, next) => {
 
     if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
-      console.log("incorrect otp")
       return;
     }
     if (otp.expiresAt < currentDateTime) {
@@ -58,7 +56,6 @@ exports.verifyOtp = async (req, res, next) => {
 
 exports.createNewUser = async (req, res, next) => {
   try {
-    console.log("XYXYXXHFJklrkjgs.f");
     let { email, name, password, phone, primary_location, is_veg } = req.body; // send the hashed passwd from the client
 
     const emailExist = await User.findOne({ email });

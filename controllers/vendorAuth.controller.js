@@ -12,7 +12,7 @@ const {
   EMAIL_ALREADY_EXISTS_ERR
 } = require("../errors");
 
-// const { checkPassword, hashPassword } = require("../utils/password.util");
+
 const { createJwtToken } = require("../utils/token.util");
 
 let mailTransporter = nodemailer.createTransport({
@@ -30,13 +30,11 @@ exports.createNewVendor = async (req, res, next) => {
   try {
     let { email, ownerName, restaurantName, password,location, phone,supported_location } = req.body;
     
-    // let countrycode = 91
     const emailExist = await Vendor.findOne({ email });
     if (emailExist) {
       next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
       return;
     }
-    // create new vendor
   
     const createVendor = new Vendor({
       ownerName,
@@ -58,9 +56,9 @@ exports.createNewVendor = async (req, res, next) => {
     const otp = Math.floor(1000 + Math.random() * 9000);
     const sentOtp = new OTP({
       code: otp,
-      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), // Set expiration time 2 minutes
-      entity: vendor._id, // Reference to the user document
-      entityModel: 'Vendor', // Indicates that this OTP is for a user
+      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000),
+      entity: vendor._id, 
+      entityModel: 'Vendor', 
     });
     await sentOtp.save();
 
