@@ -88,6 +88,7 @@ exports.createNewUser = async (req, res, next) => {
     createUserCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 8000);
+
     const sentOtp = new OTP({
       code: otp,
       expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), 
@@ -159,13 +160,13 @@ exports.fetchCurrentUser = async (req, res, next) => {
 exports.updateUserProfile = async(req,res,next) => {
   try{
     const currentUser = res.locals.user;
-    const User = await User.findById(currentUser.userId);
+    const user = await User.findById(currentUser._id);
     for (const [key, value] of Object.entries(req.body)) {
       if (key !== 'email') {
-        User[key] = value;
+        user[key] = value;
       }
     }
-    const updatedUser = await User.save();
+    const updatedUser = await user.save();
 
     return res.status(200).json({
       type: "success",
