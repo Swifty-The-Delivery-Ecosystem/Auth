@@ -1,7 +1,4 @@
-const {createNewUser} = require('../../../controllers/userAuth.controller')
 const app = require('../../../index');
-const mongoose = require('mongoose');
-require("dotenv").config();
 const request = require('supertest');
 const randomUtils = require('../../../utils/random.util');
 const {
@@ -14,8 +11,9 @@ const {
   OTP_EXPIRED_ERR
 } = require("../../../errors");
 
+
 describe('POST /register', function(){
-  it('responds with OTP sent successfully message', async ()=>{
+  test('responds with OTP sent successfully message', async ()=>{
     const res = await request(app)
       .post('/api/v1/auth/users/register')
       .send({
@@ -34,7 +32,7 @@ describe('POST /register', function(){
     
     }
     else if(res.statusCode  == 200) {
-      expect(res.body).toBe("OTP sent successfully to your email address.");
+      expect(res.body).toBe( "OTP sent successfully to your email address.");
 
     }
     else{

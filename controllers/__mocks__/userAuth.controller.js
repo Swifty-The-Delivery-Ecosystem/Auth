@@ -1,8 +1,7 @@
-const User = require("../models/user.model");
-const UserCredentials = require("../models/user.credentials");
-const OTP = require("../models/otp.model");
-
-const nodemailer = require("nodemailer");
+const User = require("../../models/user.model");
+const UserCredentials = require("../../models/user.credentials");
+const OTP = require("../../models/otp.model");
+const { createJwtToken } = require("../../utils/token.util");
 const {
   USER_NOT_FOUND_ERR,
   MAIL_ALREADY_EXISTS_ERR,
@@ -11,19 +10,7 @@ const {
   ACCESS_DENIED_ERR,
   EMAIL_NOT_FOUND_ERR,
   OTP_EXPIRED_ERR
-} = require("../errors");
-
-const { createJwtToken } = require("../utils/token.util");
-
-let mailTransporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "adityavinay@iitbhilai.ac.in",
-    pass: "afbu jlzp wolw qhya",
-  },
-});
-
-
+} = require("../../errors");
 
 // ---------------------- verify mail otp -------------------------
 
@@ -68,10 +55,10 @@ exports.verifyOtp = async (req, res, next) => {
   }
 };
 
-// --------------------- create new user ---------------------------------
 
 exports.createNewUser = async (req, res, next) => {
   try {
+    console.log("XYXYXXHFJklrkjgs.f");
     let { email, name, password, phone, primary_location, is_veg } = req.body; // send the hashed passwd from the client
 
     const emailExist = await User.findOne({ email });
@@ -101,12 +88,6 @@ exports.createNewUser = async (req, res, next) => {
     createUserCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 8000);
-    let mailDetails = {
-      from: "adityavinay@iitbhilai.ac.in",
-      to: email,
-      subject: "OTP for creating account at Swifty.",
-      text: `Your OTP is: ${otp}`,
-    };
     const sentOtp = new OTP({
       code: otp,
       expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), 
@@ -114,18 +95,8 @@ exports.createNewUser = async (req, res, next) => {
       entityModel: 'User', 
     });
     await sentOtp.save();
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        //TODO: Email doesn't exist not handled.
-        // console.log("Error Occurs");
-        // console.log(err);
-      } else {
-        // console.log("Email sent successfully");
-      }
-    });
- 
 
-    res.status(200).json("OTP sent successfully to your email address.");
+    res.status(200).json({otp: otp});
   } catch (error) {
     next(error);
   }

@@ -4,7 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 
-const { PORT, MONGODB_URI,ORIGIN } = require("./config");
+const { PORT, MONGODB_URI,ORIGIN, NODE_ENV } = require("./config");
 const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
 
 // routes
@@ -74,9 +74,11 @@ async function main() {
     useUnifiedTopology: true
   });
 
-    console.log("database connected");
-
+    // console.log("database connected");
+    // console.log(NODE_ENV);
+    if(NODE_ENV != 'test'){
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+    }
   } catch (error) {
     console.log(error);
     process.exit(1);
