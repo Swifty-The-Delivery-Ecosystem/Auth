@@ -53,4 +53,4 @@ describe('POST /api/v1/auth/vendors/register', ()=>{
       expect(res.statusCode).toBe(200);
     }
   }, 20000)
-})co
+})
