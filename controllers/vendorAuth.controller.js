@@ -78,7 +78,7 @@ exports.createNewVendor = async (req, res, next) => {
       }
     });
 
-    res.status(200).send("OTP send successfully");
+    res.status(200).json("OTP send successfully");
   } catch (error) {
     next(error);
   }

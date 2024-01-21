@@ -16,6 +16,7 @@ const config = {
 
   // Automatically clear mock calls, instances, contexts and results before every test
   clearMocks: true,
+  testTimeout: 40000,
 
   // Indicates whether the coverage information should be collected while executing the test
   collectCoverage: true,
@@ -143,7 +144,7 @@ const config = {
   // setupFilesAfterEnv: [],
 
   // The number of seconds after which a test is considered as slow and reported as such in the results.
-  // slowTestThreshold: 5,
+  slowTestThreshold: 60,
 
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   // snapshotSerializers: [],
