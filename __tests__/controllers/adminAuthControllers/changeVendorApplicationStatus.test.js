@@ -48,7 +48,7 @@ describe('PUT /vendors/:vendorId/status', ()=>{
       .set('Authorization','Bearer '+token)
       .set('Accept','application/json')
       .send({
-        status : 'active'
+        newStatus : 'active'
       });
 
       expect(res.statusCode).toBe(200);
