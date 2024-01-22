@@ -80,7 +80,7 @@ const {
         return res.status(404).json({ error: 'Vendor not found' });
       }
   
-      res.json(updatedVendor);
+      res.status(200).json(updatedVendor);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
