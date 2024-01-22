@@ -102,7 +102,7 @@ const {
       return res.status(404).json({ error: 'Vendor not found' });
     }
 
-    res.status(200).send("Vendor debarred successfully");
+    res.status(200).json("Vendor debarred successfully");
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -131,7 +131,8 @@ exports.getAllUsers = async (req, res, next) => {
  // --------------- Debar User ------------------------
 
  exports.debarUser = async (req, res, next) => {
-  const { userId } = req.body.userId;
+  const { userId } = req.body;
+
   try {
     const debaruser = await User.findOneAndUpdate(
       { _id: userId },
@@ -143,7 +144,7 @@ exports.getAllUsers = async (req, res, next) => {
       return res.status(404).json({ error: 'user not found' });
     }
 
-    res.status(200).send("users debarred successfully");
+    res.status(200).json("users debarred successfully");
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
