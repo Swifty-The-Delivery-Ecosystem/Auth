@@ -3,20 +3,17 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-
-const { PORT, MONGODB_URI,ORIGIN, NODE_ENV } = require("./config");
+const { PORT, MONGODB_URI, ORIGIN, NODE_ENV } = require("./config");
 const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
 
 // routes
 const userAuthRoutes = require("./routes/userAuth.route");
 const vendorAuthRoutes = require("./routes/vendorAuth.route");
-const adminAuthRoutes = require("./routes/adminAuth.route")
+const adminAuthRoutes = require("./routes/adminAuth.route");
 // init express app
 const app = express();
 
 // middlewares
-
-
 
 app.use(express.json());
 app.use(
@@ -26,7 +23,6 @@ app.use(
     optionsSuccessStatus: 200,
   })
 );
-
 
 // index route
 
@@ -70,14 +66,14 @@ app.use((err, req, res, next) => {
 async function main() {
   try {
     await mongoose.connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  });
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
 
     // console.log("database connected");
     // console.log(NODE_ENV);
-    if(NODE_ENV != 'test'){
-    app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+    if (NODE_ENV != "test") {
+      app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
     }
   } catch (error) {
     console.log(error);
