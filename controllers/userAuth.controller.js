@@ -87,7 +87,7 @@ exports.createNewUser = async (req, res, next) => {
     createUserCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 8000);
-    mail({
+    await mail({
       from: "adityavinay@iitbhilai.ac.in", // sender address
       to: "adityavinay@iitbhilai.ac.in", // list of receivers
       subject: "OTP Verification mail for Swifty", // Subject line
