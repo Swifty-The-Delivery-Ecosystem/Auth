@@ -1,7 +1,17 @@
 const User = require("../models/user.model");
 const UserCredentials = require("../models/user.credentials");
 const OTP = require("../models/otp.model");
-var mail = require("nodemailer").mail;
+const nodemailer = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  port: 465,
+  host: "smtp.gmail.com",
+  auth: {
+    user: "adityavinay@iitbhilai.ac.in",
+    pass: "mxzc acbf revb xcxh",
+  },
+  secure: true,
+});
 
 const {
   USER_NOT_FOUND_ERR,
@@ -87,18 +97,49 @@ exports.createNewUser = async (req, res, next) => {
     createUserCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 8000);
-    await mail({
-      from: "adityavinay@iitbhilai.ac.in", // sender address
-      to: "adityavinay@iitbhilai.ac.in", // list of receivers
-      subject: "OTP Verification mail for Swifty", // Subject line
-      text: `{Your OTP is - ${otp}}`, // plaintext body
-    });
     const sentOtp = new OTP({
       code: otp,
       expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000),
       entity: user._id,
       entityModel: "User",
     });
+
+    // await new Promise((resolve, reject) => {
+    //   // verify connection configuration
+    //   transporter.verify(function (error, success) {
+    //     if (error) {
+    //       console.log(error);
+    //       reject(error);
+    //     } else {
+    //       console.log("Server is ready to take our messages");
+    //       resolve(success);
+    //     }
+    //   });
+    // });
+
+    let mailData = {
+      from: {
+        address: "adityavinay@iitbhilai.ac.in",
+      },
+
+      to: email,
+      subject: "Swifty OTP Verification",
+      text: `Your Otp is - ${otp}`,
+    };
+
+    await new Promise((resolve, reject) => {
+      // send mail
+      transporter.sendMail(mailData, (err, info) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          console.log(info);
+          resolve(info);
+        }
+      });
+    });
+
     await sentOtp.save();
 
     res.status(200).json("OTP sent successfully to your email address.");
