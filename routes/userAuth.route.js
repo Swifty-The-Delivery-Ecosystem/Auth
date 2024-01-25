@@ -17,7 +17,7 @@ router.post("/login", login);
 
 router.post("/verify", verifyOtp);
 
-router.get("/:user_id", checkAuth, fetchCurrentUser);
+router.get("/currentUser", checkAuth, fetchCurrentUser);
 
 router.put("/:user_id/update", checkAuth, updateUserProfile);
 
