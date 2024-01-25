@@ -3,12 +3,7 @@ const { model, Schema } = require("mongoose");
 
 const adminSchema = new Schema(
     {
-      name: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-      email: {
+      username: {
         type: String,
         required: true,
         trim: true,
@@ -18,11 +13,6 @@ const adminSchema = new Schema(
       password: {
         type: String,
         required: true,
-      },
-      phone:{
-        type: Number,
-        required:true,
-        unque: true
       }
 
     });

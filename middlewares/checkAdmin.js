@@ -29,7 +29,7 @@ module.exports = async (req, res, next) => {
             return
         }
 
-        const admin = await Admin.findById(AdminId)
+        const admin = await Admin.findById(adminId)
 
         if (!admin) {
             next({status: 404, message: ADMIN_NOT_FOUND_ERR })

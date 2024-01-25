@@ -1,6 +1,6 @@
 const Vendor = require("../models/vendor.model")
 
-const { AUTH_TOKEN_MISSING_ERR, AUTH_HEADER_MISSING_ERR, JWT_DECODE_ERR, USER_NOT_FOUND_ERR } = require("../errors")
+const { AUTH_TOKEN_MISSING_ERR, AUTH_HEADER_MISSING_ERR, JWT_DECODE_ERR, USER_NOT_FOUND_ERR, VENDOR_NOT_PERMITTED } = require("../errors")
 const { verifyJwtToken } = require("../utils/token.util")
 
 
@@ -34,6 +34,11 @@ module.exports = async (req, res, next) => {
 
         if (!vendor) {
             next({status: 404, message: USER_NOT_FOUND_ERR })
+            return
+        }
+
+        if (vendor.status != 'active') {
+            next({status: 404, message: VENDOR_NOT_PERMITTED })
             return
         }
 

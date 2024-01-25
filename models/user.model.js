@@ -12,36 +12,24 @@ const userSchema = new Schema(
       required: true,
       trim: true,
       unique: true,
+      immutable: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
-    phone:{
+    phone: {
       type: Number,
-      required:true,
-      unque: true
+      required: true,
+      unique: true,
     },
     favourite_vendors: {
-      type: [String],  
+      type: [String],
     },
-    primary_location:{
+    primary_location: {
       type: Number,
-      required:true
+      required: true,
     },
-    otp: {
-      code: {
-        type: Number,
-      },
-      expiresAt: {
-        type: Date,
-      },
-    },
-    is_Veg: {
-      type: Boolean
+    is_veg: {
+      type: Boolean,
     },
   },
-  
   { timestamps: true }
 );
 
