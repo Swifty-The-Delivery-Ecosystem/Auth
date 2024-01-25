@@ -1,6 +1,5 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 require("dotenv").config();
 
 const { PORT, MONGODB_URI, ORIGIN, NODE_ENV } = require("./config");
@@ -13,17 +12,15 @@ const adminAuthRoutes = require("./routes/adminAuth.route");
 // init express app
 const app = express();
 
-// middlewares
+app.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  // res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
 
 app.use(express.json());
-app.use(
-  cors({
-    credentials: true,
-    origin: ORIGIN,
-    optionsSuccessStatus: 200,
-  })
-);
-
 // index route
 
 app.get("/", (req, res) => {
