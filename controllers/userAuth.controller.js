@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
 const UserCredentials = require("../models/user.credentials");
 const OTP = require("../models/otp.model");
-const nodemailer = require("nodemailer");
+var mail = require("nodemailer").mail;
 
 const {
   USER_NOT_FOUND_ERR,
@@ -10,22 +10,10 @@ const {
   INCORRECT_CRED_ERR,
   ACCESS_DENIED_ERR,
   EMAIL_NOT_FOUND_ERR,
-  OTP_EXPIRED_ERR
+  OTP_EXPIRED_ERR,
 } = require("../errors");
 
 const { createJwtToken } = require("../utils/token.util");
-
-let mailTransporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "adityavinay@iitbhilai.ac.in",
-    pass: "mxzc acbf revb xcxh",
-  },
-});
-
-
-
-// ---------------------- verify mail otp -------------------------
 
 exports.verifyOtp = async (req, res, next) => {
   try {
@@ -35,23 +23,22 @@ exports.verifyOtp = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
-      console.log("user not found")
+      console.log("user not found");
       return;
     }
     const otp = await OTP.findOne({ entity: user._id })
-    .sort({ createdAt: -1 }) 
-    .limit(1);
+      .sort({ createdAt: -1 })
+      .limit(1);
 
     if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
-      console.log("incorrect otp")
+      console.log("incorrect otp");
       return;
     }
     if (otp.expiresAt < currentDateTime) {
-      next({ status: 400, message: OTP_EXPIRED_ERR});
+      next({ status: 400, message: OTP_EXPIRED_ERR });
       return;
     }
-
 
     const token = createJwtToken({ userId: user._id });
 
@@ -80,8 +67,7 @@ exports.createNewUser = async (req, res, next) => {
       next({ status: 400, message: MAIL_ALREADY_EXISTS_ERR });
       return;
     }
-    
-    
+
     const createUser = new User({
       name,
       phone,
@@ -93,39 +79,27 @@ exports.createNewUser = async (req, res, next) => {
     const user = await createUser.save();
 
     const createUserCredentials = new UserCredentials({
-      user_id:user._id,
+      user_id: user._id,
       email,
-      password
+      password,
     });
 
     createUserCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 8000);
-    let mailDetails = {
-      from: "adityavinay@iitbhilai.ac.in",
-      to: email,
-      subject: "OTP for creating account at Swifty.",
-      text: `Your OTP is: ${otp}`,
-    };
+    mail({
+      from: "adityavinay@iitbhilai.ac.in", // sender address
+      to: "adityavinay@iitbhilai.ac.in", // list of receivers
+      subject: "OTP Verification mail for Swifty", // Subject line
+      text: `{Your OTP is - ${otp}}`, // plaintext body
+    });
     const sentOtp = new OTP({
       code: otp,
-      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), 
-      entity: user._id,   
-      entityModel: 'User', 
+      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000),
+      entity: user._id,
+      entityModel: "User",
     });
     await sentOtp.save();
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        //TODO: Email doesn't exist not handled.
-        // console.log("Error Occurs");
-        console.log(err);
-        console.log("Error Occurs");
-      } else {
-        // console.log("Email sent successfully");
-        console.log("Email sent successfully");
-      }
-    });
- 
 
     res.status(200).json("OTP sent successfully to your email address.");
   } catch (error) {
@@ -163,7 +137,6 @@ exports.login = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-
 };
 
 // --------------- fetch current user -------------------------
@@ -184,15 +157,14 @@ exports.fetchCurrentUser = async (req, res, next) => {
   }
 };
 
-
 // --------------- Update vendor profile -------------------------
 
-exports.updateUserProfile = async(req,res,next) => {
-  try{
+exports.updateUserProfile = async (req, res, next) => {
+  try {
     const currentUser = res.locals.user;
     const User = await User.findById(currentUser.userId);
     for (const [key, value] of Object.entries(req.body)) {
-      if (key !== 'email') {
+      if (key !== "email") {
         User[key] = value;
       }
     }
@@ -208,4 +180,4 @@ exports.updateUserProfile = async(req,res,next) => {
   } catch (error) {
     next(error);
   }
-}
+};
