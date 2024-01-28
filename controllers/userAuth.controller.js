@@ -1,8 +1,8 @@
 const User = require("../models/user.model");
 const UserCredentials = require("../models/user.credentials");
 const OTP = require("../models/otp.model");
-
 const nodemailer = require("nodemailer");
+
 const {
   USER_NOT_FOUND_ERR,
   MAIL_ALREADY_EXISTS_ERR,
@@ -19,7 +19,7 @@ let mailTransporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: "adityavinay@iitbhilai.ac.in",
-    pass: "afbu jlzp wolw qhya",
+    pass: "mxzc acbf revb xcxh",
   },
 });
 
@@ -118,9 +118,11 @@ exports.createNewUser = async (req, res, next) => {
       if (err) {
         //TODO: Email doesn't exist not handled.
         // console.log("Error Occurs");
-        // console.log(err);
+        console.log(err);
+        console.log("Error Occurs");
       } else {
         // console.log("Email sent successfully");
+        console.log("Email sent successfully");
       }
     });
  
