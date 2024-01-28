@@ -13,6 +13,7 @@ const {
 } = require("../errors");
 
 const { createJwtToken } = require("../utils/token.util");
+const DeliveryPartner = require("../models/deliveryPartner.model");
 
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
@@ -203,4 +204,26 @@ exports.updateVendorProfile = async (re, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}
+
+// --------------- Register Delivery Partner -------------------------
+
+exports.resgisterDeliveryPartner = async(re,res,next) => {
+  try{
+    const currentVendor = res.locals.user;
+    const {name, phone} = req.body;  
+    const otp = Math.floor(1000 + Math.random() * 9000);
+    const deliveryPartner = new DeliveryPartner({
+      name :name,
+      phone: phone,
+      otp: otp,
+      vendor_id: currentVendor
+    });
+    await deliveryPartner.save();
+    
+    res.status(201).json({deliveryPartner,otp});
+
+  } catch (error) {
+    next(error);
+  }
+}
