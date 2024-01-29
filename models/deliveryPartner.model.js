@@ -14,9 +14,8 @@ const deliveryPartnerSchema = new Schema(
       unique: true,
     },
     otp: {
-      code: {
         type: Number,
-      }
+        required:true
     },
     vendor_id: {
       type: Schema.Types.ObjectId,

@@ -183,7 +183,7 @@ exports.fetchCurrentVendor = async (req, res, next) => {
 
 // --------------- Update vendor profile -------------------------
 
-exports.updateVendorProfile = async (re, res, next) => {
+exports.updateVendorProfile = async (req, res, next) => {
   try {
     const currentVendor = res.locals.user;
     const vendor = await Vendor.findById(currentVendor.userId);
@@ -208,10 +208,11 @@ exports.updateVendorProfile = async (re, res, next) => {
 
 // --------------- Register Delivery Partner -------------------------
 
-exports.resgisterDeliveryPartner = async(re,res,next) => {
+exports.registerDeliveryPartner = async(req,res,next) => {
   try{
     const currentVendor = res.locals.user;
     const {name, phone} = req.body;  
+    console.log(name)
     const otp = Math.floor(1000 + Math.random() * 9000);
     const deliveryPartner = new DeliveryPartner({
       name :name,
@@ -222,6 +223,54 @@ exports.resgisterDeliveryPartner = async(re,res,next) => {
     await deliveryPartner.save();
     
     res.status(201).json({deliveryPartner,otp});
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+// --------------- GET Delivery Partner -------------------------
+
+exports.getDeliveryPartner = async(req,res,next) => {
+  try{
+    const currentVendor = res.locals.user; 
+    const deliveryPartners = await DeliveryPartner.find({vendor_id:currentVendor});
+
+    res.status(201).json({deliveryPartners});
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+// --------------- UPDATE Delivery Partner -------------------------
+
+exports.updateDeliveryPartner = async(req,res,next) => {
+  try{
+    const {deliveryPartner_id,name} = req.body;  
+    const updateDeliveryPartner = await DeliveryPartner.findOneAndUpdate(
+      { _id:deliveryPartner_id},
+      { $set: { name : name } },
+      { new: true } 
+    );
+
+    res.status(201).json({updateDeliveryPartner});
+
+  } catch (error) {
+    next(error);
+  }
+}
+
+// --------------- DELETE Delivery Partner -------------------------
+
+exports.deleteDeliveryPartner = async(req,res,next) => {
+  try{
+    const {deliveryPartner_id} = req.body;  
+    await DeliveryPartner.deleteOne(
+      { _id:deliveryPartner_id}
+    );
+
+    res.status(200).json("Deleted successfully");
 
   } catch (error) {
     next(error);

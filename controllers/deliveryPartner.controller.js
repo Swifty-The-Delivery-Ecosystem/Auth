@@ -4,6 +4,8 @@ const {
     INCORRECT_CRED_ERR,
     ACCESS_DENIED_ERR,
   } = require("../errors");
+  
+const { createJwtToken } = require("../utils/token.util");
 
 exports.deliveryPartnerLogin = async(req,res,next) => {
 try{
