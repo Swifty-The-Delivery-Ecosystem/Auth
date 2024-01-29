@@ -9,6 +9,7 @@ const { API_ENDPOINT_NOT_FOUND_ERR, SERVER_ERR } = require("./errors");
 const userAuthRoutes = require("./routes/userAuth.route");
 const vendorAuthRoutes = require("./routes/vendorAuth.route");
 const adminAuthRoutes = require("./routes/adminAuth.route");
+const deliveryPartnerRoutes = require("./routes/deliverPartnerAuth.route")
 // init express app
 const app = express();
 
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth/users", userAuthRoutes);
 app.use("/api/v1/auth/vendors", vendorAuthRoutes);
 app.use("/api/v1/auth/admins", adminAuthRoutes);
+app.use("/api/v1/auth/delivery_partner",deliveryPartnerRoutes )
 
 // page not found error handling  middleware
 

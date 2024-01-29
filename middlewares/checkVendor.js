@@ -9,7 +9,6 @@ module.exports = async (req, res, next) => {
     try {
         // check for auth header from client 
         const header = req.headers.authorization
-        console.log(header);
         if (!header) {
             next({ status: 403, message: AUTH_HEADER_MISSING_ERR })
             return
@@ -24,7 +23,7 @@ module.exports = async (req, res, next) => {
         }
 
         const vendorId = verifyJwtToken(token,next)
-
+        console.log(vendorId);
         if (!vendorId) {
             next({ status: 403, message: JWT_DECODE_ERR })
             return
