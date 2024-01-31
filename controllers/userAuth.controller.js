@@ -203,13 +203,14 @@ exports.fetchCurrentUser = async (req, res, next) => {
 exports.updateUserProfile = async (req, res, next) => {
   try {
     const currentUser = res.locals.user;
-    const User = await User.findById(currentUser.userId);
+    const user = await User.findById(currentUser._id);
     for (const [key, value] of Object.entries(req.body)) {
       if (key !== "email") {
-        User[key] = value;
+        user[key] = value;
       }
     }
-    const updatedUser = await User.save();
+    const updatedUser = await user.save();
+    console.log(updatedUser);
 
     return res.status(200).json({
       type: "success",
