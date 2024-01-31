@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const MenuItem = require("./menuItem.model");
+const MenuItem = require("./menuitem.js");
 
 const MenuSchema = mongoose.Schema({
   items: [
