@@ -212,7 +212,7 @@ exports.registerDeliveryPartner = async(req,res,next) => {
   try{
     const currentVendor = res.locals.user;
     const {name, phone} = req.body;  
-    console.log(name)
+    console.log(req.body)
     const otp = Math.floor(1000 + Math.random() * 9000);
     const deliveryPartner = new DeliveryPartner({
       name :name,
@@ -222,7 +222,9 @@ exports.registerDeliveryPartner = async(req,res,next) => {
     });
     await deliveryPartner.save();
     
-    res.status(201).json({deliveryPartner,otp});
+    res.status(201).json({data: {
+      deliveryPartner: deliveryPartner,
+    }});
 
   } catch (error) {
     next(error);
@@ -235,7 +237,7 @@ exports.getDeliveryPartner = async(req,res,next) => {
   try{
     const currentVendor = res.locals.user; 
     const deliveryPartners = await DeliveryPartner.find({vendor_id:currentVendor});
-
+ 
     res.status(201).json({deliveryPartners});
 
   } catch (error) {

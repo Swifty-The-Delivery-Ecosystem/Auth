@@ -27,7 +27,7 @@ router.put("/:user_id/update", checkAuth, updateVendorProfile);
 
 router.post("/delivery_partner/register", checkAuth, registerDeliveryPartner);
 
-router.get("/delivery_partner",checkAuth,getDeliveryPartner);
+router.get("/delivery_partner/view",checkAuth,getDeliveryPartner);
 
 router.put("/delivery_partner_update", checkAuth, updateDeliveryPartner);
 
