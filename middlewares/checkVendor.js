@@ -23,7 +23,6 @@ module.exports = async (req, res, next) => {
         }
 
         const vendorId = verifyJwtToken(token,next)
-        console.log(vendorId);
         if (!vendorId) {
             next({ status: 403, message: JWT_DECODE_ERR })
             return

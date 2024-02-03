@@ -218,8 +218,9 @@ exports.updateVendorProfile = async (req, res, next) => {
 exports.registerDeliveryPartner = async (req, res, next) => {
   try {
     const currentVendor = res.locals.user;
-    const { name, phone } = req.body;
-    console.log(name);
+
+    const {name, phone} = req.body;   
+
     const otp = Math.floor(1000 + Math.random() * 9000);
     const deliveryPartner = new DeliveryPartner({
       name: name,
@@ -228,6 +229,12 @@ exports.registerDeliveryPartner = async (req, res, next) => {
       vendor_id: currentVendor,
     });
     await deliveryPartner.save();
+
+    
+    res.status(201).json({data: {
+      deliveryPartner: deliveryPartner,
+    }});
+
 
     res.status(201).json({ deliveryPartner, otp });
   } catch (error) {
@@ -261,7 +268,9 @@ exports.updateDeliveryPartner = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(201).json({ updateDeliveryPartner });
+    res.status(201).json({updateDeliveryPartner});
+
+
   } catch (error) {
     next(error);
   }
