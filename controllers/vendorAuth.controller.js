@@ -211,8 +211,7 @@ exports.updateVendorProfile = async (req, res, next) => {
 exports.registerDeliveryPartner = async(req,res,next) => {
   try{
     const currentVendor = res.locals.user;
-    const {name, phone} = req.body;  
-    console.log(req.body)
+    const {name, phone} = req.body;   
     const otp = Math.floor(1000 + Math.random() * 9000);
     const deliveryPartner = new DeliveryPartner({
       name :name,
@@ -255,7 +254,7 @@ exports.updateDeliveryPartner = async(req,res,next) => {
       { $set: { name : name } },
       { new: true } 
     );
-
+      console.log(req.body)
     res.status(201).json({updateDeliveryPartner});
 
   } catch (error) {

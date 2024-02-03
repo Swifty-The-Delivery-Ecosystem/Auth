@@ -9,8 +9,6 @@ module.exports = async (req, res, next) => {
     try {
         // check for auth header from client 
         const header = req.headers.authorization
-        console.log(header)
-        console.log(req.headers.Authorization)
         if (!header) {
             next({ status: 403, message: AUTH_HEADER_MISSING_ERR })
             return
