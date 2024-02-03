@@ -28,6 +28,9 @@ try{
         data: {
           token,
           userId: deliveryPartner._id,
+          name: deliveryPartner.name,
+          phone: deliveryPartner.phone,
+          isAvailable: deliveryPartner.isAvailable
         },
       });
 }

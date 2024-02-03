@@ -29,6 +29,7 @@ router.post("/delivery_partner/register", checkAuth, registerDeliveryPartner);
 
 router.get("/delivery_partner/view",checkAuth,getDeliveryPartner);
 
+
 router.put("/update/delivery_partner_update", checkAuth, updateDeliveryPartner);
 
 router.delete("/delivery_partner/delete", checkAuth, deleteDeliveryPartner);

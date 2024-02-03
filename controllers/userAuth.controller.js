@@ -3,6 +3,16 @@ const UserCredentials = require("../models/user.credentials");
 const OTP = require("../models/otp.model");
 const nodemailer = require("nodemailer");
 
+const transporter = nodemailer.createTransport({
+  port: 465,
+  host: "smtp.gmail.com",
+  auth: {
+    user: "adityavinay@iitbhilai.ac.in",
+    pass: "mxzc acbf revb xcxh",
+  },
+  secure: true,
+});
+
 const {
   USER_NOT_FOUND_ERR,
   MAIL_ALREADY_EXISTS_ERR,
@@ -10,22 +20,10 @@ const {
   INCORRECT_CRED_ERR,
   ACCESS_DENIED_ERR,
   EMAIL_NOT_FOUND_ERR,
-  OTP_EXPIRED_ERR
+  OTP_EXPIRED_ERR,
 } = require("../errors");
 
 const { createJwtToken } = require("../utils/token.util");
-
-let mailTransporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "adityavinay@iitbhilai.ac.in",
-    pass: "mxzc acbf revb xcxh",
-  },
-});
-
-
-
-// ---------------------- verify mail otp -------------------------
 
 exports.verifyOtp = async (req, res, next) => {
   try {
@@ -35,23 +33,22 @@ exports.verifyOtp = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
-      console.log("user not found")
+      console.log("user not found");
       return;
     }
     const otp = await OTP.findOne({ entity: user._id })
-    .sort({ createdAt: -1 }) 
-    .limit(1);
+      .sort({ createdAt: -1 })
+      .limit(1);
 
     if (in_otp !== otp.code) {
       next({ status: 400, message: INCORRECT_OTP_ERR });
-      console.log("incorrect otp")
+      console.log("incorrect otp");
       return;
     }
     if (otp.expiresAt < currentDateTime) {
-      next({ status: 400, message: OTP_EXPIRED_ERR});
+      next({ status: 400, message: OTP_EXPIRED_ERR });
       return;
     }
-
 
     const token = createJwtToken({ userId: user._id });
 
@@ -80,8 +77,7 @@ exports.createNewUser = async (req, res, next) => {
       next({ status: 400, message: MAIL_ALREADY_EXISTS_ERR });
       return;
     }
-    
-    
+
     const createUser = new User({
       name,
       phone,
@@ -93,39 +89,58 @@ exports.createNewUser = async (req, res, next) => {
     const user = await createUser.save();
 
     const createUserCredentials = new UserCredentials({
-      user_id:user._id,
+      user_id: user._id,
       email,
-      password
+      password,
     });
 
     createUserCredentials.save();
 
     const otp = Math.floor(1000 + Math.random() * 8000);
-    let mailDetails = {
-      from: "adityavinay@iitbhilai.ac.in",
-      to: email,
-      subject: "OTP for creating account at Swifty.",
-      text: `Your OTP is: ${otp}`,
-    };
     const sentOtp = new OTP({
       code: otp,
-      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000), 
-      entity: user._id,   
-      entityModel: 'User', 
+      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000),
+      entity: user._id,
+      entityModel: "User",
     });
+
+    // await new Promise((resolve, reject) => {
+    //   // verify connection configuration
+    //   transporter.verify(function (error, success) {
+    //     if (error) {
+    //       console.log(error);
+    //       reject(error);
+    //     } else {
+    //       console.log("Server is ready to take our messages");
+    //       resolve(success);
+    //     }
+    //   });
+    // });
+
+    let mailData = {
+      from: {
+        address: "adityavinay@iitbhilai.ac.in",
+      },
+
+      to: email,
+      subject: "Swifty OTP Verification",
+      text: `Your Otp is - ${otp}`,
+    };
+
+    await new Promise((resolve, reject) => {
+      // send mail
+      transporter.sendMail(mailData, (err, info) => {
+        if (err) {
+          console.error(err);
+          reject(err);
+        } else {
+          console.log(info);
+          resolve(info);
+        }
+      });
+    });
+
     await sentOtp.save();
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        //TODO: Email doesn't exist not handled.
-        // console.log("Error Occurs");
-        console.log(err);
-        console.log("Error Occurs");
-      } else {
-        // console.log("Email sent successfully");
-        console.log("Email sent successfully");
-      }
-    });
- 
 
     res.status(200).json("OTP sent successfully to your email address.");
   } catch (error) {
@@ -163,7 +178,6 @@ exports.login = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-
 };
 
 // --------------- fetch current user -------------------------
@@ -184,19 +198,19 @@ exports.fetchCurrentUser = async (req, res, next) => {
   }
 };
 
-
 // --------------- Update vendor profile -------------------------
 
-exports.updateUserProfile = async(req,res,next) => {
-  try{
+exports.updateUserProfile = async (req, res, next) => {
+  try {
     const currentUser = res.locals.user;
-    const User = await User.findById(currentUser.userId);
+    const user = await User.findById(currentUser._id);
     for (const [key, value] of Object.entries(req.body)) {
-      if (key !== 'email') {
-        User[key] = value;
+      if (key !== "email") {
+        user[key] = value;
       }
     }
-    const updatedUser = await User.save();
+    const updatedUser = await user.save();
+    console.log(updatedUser);
 
     return res.status(200).json({
       type: "success",
@@ -208,4 +222,4 @@ exports.updateUserProfile = async(req,res,next) => {
   } catch (error) {
     next(error);
   }
-}
+};

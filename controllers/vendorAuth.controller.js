@@ -14,6 +14,7 @@ const {
 
 const { createJwtToken } = require("../utils/token.util");
 const DeliveryPartner = require("../models/deliveryPartner.model");
+const menuModel = require("../models/menu.model");
 
 let mailTransporter = nodemailer.createTransport({
   service: "gmail",
@@ -57,6 +58,12 @@ exports.createNewVendor = async (req, res, next) => {
       vendor_id: vendor._id,
     });
     await createVendorCredentials.save();
+
+    const menu = new menuModel({
+      vendor_id: vendor._id,
+      items: [],
+    });
+    await menu.save();
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     const sentOtp = new OTP({
@@ -204,76 +211,80 @@ exports.updateVendorProfile = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-}
+};
 
 // --------------- Register Delivery Partner -------------------------
 
-exports.registerDeliveryPartner = async(req,res,next) => {
-  try{
+exports.registerDeliveryPartner = async (req, res, next) => {
+  try {
     const currentVendor = res.locals.user;
+
     const {name, phone} = req.body;   
+
     const otp = Math.floor(1000 + Math.random() * 9000);
     const deliveryPartner = new DeliveryPartner({
-      name :name,
+      name: name,
       phone: phone,
       otp: otp,
-      vendor_id: currentVendor
+      vendor_id: currentVendor,
     });
     await deliveryPartner.save();
+
     
     res.status(201).json({data: {
       deliveryPartner: deliveryPartner,
     }});
 
+
+    res.status(201).json({ deliveryPartner, otp });
   } catch (error) {
     next(error);
   }
-}
+};
 
 // --------------- GET Delivery Partner -------------------------
 
-exports.getDeliveryPartner = async(req,res,next) => {
-  try{
-    const currentVendor = res.locals.user; 
-    const deliveryPartners = await DeliveryPartner.find({vendor_id:currentVendor});
- 
-    res.status(201).json({deliveryPartners});
+exports.getDeliveryPartner = async (req, res, next) => {
+  try {
+    const currentVendor = res.locals.user;
+    const deliveryPartners = await DeliveryPartner.find({
+      vendor_id: currentVendor,
+    });
 
+    res.status(201).json({ deliveryPartners });
   } catch (error) {
     next(error);
   }
-}
+};
 
 // --------------- UPDATE Delivery Partner -------------------------
 
-exports.updateDeliveryPartner = async(req,res,next) => {
-  try{
-    const {deliveryPartner_id,name} = req.body;  
+exports.updateDeliveryPartner = async (req, res, next) => {
+  try {
+    const { deliveryPartner_id, name } = req.body;
     const updateDeliveryPartner = await DeliveryPartner.findOneAndUpdate(
-      { _id:deliveryPartner_id},
-      { $set: { name : name } },
-      { new: true } 
+      { _id: deliveryPartner_id },
+      { $set: { name: name } },
+      { new: true }
     );
-      console.log(req.body)
+
     res.status(201).json({updateDeliveryPartner});
+
 
   } catch (error) {
     next(error);
   }
-}
+};
 
 // --------------- DELETE Delivery Partner -------------------------
 
-exports.deleteDeliveryPartner = async(req,res,next) => {
-  try{
-    const {deliveryPartner_id} = req.body;  
-    await DeliveryPartner.deleteOne(
-      { _id:deliveryPartner_id}
-    );
+exports.deleteDeliveryPartner = async (req, res, next) => {
+  try {
+    const { deliveryPartner_id } = req.body;
+    await DeliveryPartner.deleteOne({ _id: deliveryPartner_id });
 
     res.status(200).json("Deleted successfully");
-
   } catch (error) {
     next(error);
   }
-}
+};
