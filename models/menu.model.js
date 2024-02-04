@@ -9,7 +9,6 @@ const MenuSchema = mongoose.Schema({
   ],
   vendor_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: "Vendor",
   },
 });

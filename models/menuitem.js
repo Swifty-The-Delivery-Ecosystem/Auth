@@ -7,33 +7,27 @@ const MenuItemSchema = mongoose.Schema({
   item_id: {
     type: String,
     unique: true,
-    required: true,
   },
   name: {
     type: String,
-    required: [true, "Please enter a valid name"],
   },
   is_veg: {
     type: Boolean,
   },
   image_url: {
     type: String,
-    required: [true, "Provide url for menu item image"],
   },
   price: {
     type: Number,
-    required: [true, "Please enter a price"],
   },
   description: {
     type: String,
   },
   quantity: {
     type: Number,
-    required: [true, "Please enter a  quantity"],
   },
   vendor_id: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: "Vendor",
   },
   rating: {
