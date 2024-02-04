@@ -34,7 +34,12 @@ exports.createNewVendor = async (req, res, next) => {
       location,
       phone,
       supported_location,
+      isActive,
+      image_url,
+      tags
     } = req.body;
+
+    let images = [image_url];
 
     const emailExist = await Vendor.findOne({ email });
     if (emailExist) {
@@ -49,6 +54,9 @@ exports.createNewVendor = async (req, res, next) => {
       location,
       supported_location,
       phone,
+      isActive,
+      images,
+      tags
     });
     const vendor = await createVendor.save();
 
@@ -141,7 +149,10 @@ exports.verifyOtp = async (req, res, next) => {
       return;
     }
 
-    const otp = await OTP.findOne({ entity: vendor._id })
+    const otp = await OTP.findOneAndUpdate({ entity: vendor._id },
+      {
+      status: "active",
+    })
       .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
       .limit(1);
 
@@ -155,7 +166,8 @@ exports.verifyOtp = async (req, res, next) => {
     }
 
     const token = createJwtToken({ userId: vendor._id });
-    vendor.otp = null;
+
+    // vendor.otp = null;
     vendor.save();
     res.status(201).json({
       type: "success",

@@ -41,12 +41,6 @@ const vendorSchema = new Schema(
     ratings: {
       type: Number,
     },
-    number_of_rating: {
-      type: Number,
-    },
-    description: {
-      type: String,
-    },
     delivery_partners: [
       {
         type: Schema.Types.ObjectId,
