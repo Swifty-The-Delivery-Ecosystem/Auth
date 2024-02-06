@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 const MenuItemSchema = mongoose.Schema({
   item_id: {
     type: String,
-    unique: true,
   },
   name: {
     type: String,
