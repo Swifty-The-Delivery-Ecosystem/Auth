@@ -36,11 +36,13 @@ exports.createNewVendor = async (req, res, next) => {
       phone,
       supported_location,
       isActive,
-      image_url,
-      tags
+      images,
+      tags,
     } = req.body;
 
-    let images = [image_url];
+    console.log(description);
+
+    // let images = [image_url];
 
     const emailExist = await Vendor.findOne({ email });
     if (emailExist) {
@@ -58,7 +60,7 @@ exports.createNewVendor = async (req, res, next) => {
       phone,
       isActive,
       images,
-      tags
+      tags,
     });
     const vendor = await createVendor.save();
 
@@ -151,10 +153,12 @@ exports.verifyOtp = async (req, res, next) => {
       return;
     }
 
-    const otp = await OTP.findOneAndUpdate({ entity: vendor._id },
+    const otp = await OTP.findOneAndUpdate(
+      { entity: vendor._id },
       {
-      status: "active",
-    })
+        status: "active",
+      }
+    )
       .sort({ createdAt: -1 }) // Sort in descending order based on timestamp
       .limit(1);
 
@@ -233,7 +237,7 @@ exports.registerDeliveryPartner = async (req, res, next) => {
   try {
     const currentVendor = res.locals.user;
 
-    const {name, phone} = req.body;   
+    const { name, phone } = req.body;
 
     const otp = Math.floor(1000 + Math.random() * 9000);
     const deliveryPartner = new DeliveryPartner({
@@ -244,11 +248,11 @@ exports.registerDeliveryPartner = async (req, res, next) => {
     });
     await deliveryPartner.save();
 
-    
-    res.status(201).json({data: {
-      deliveryPartner: deliveryPartner,
-    }});
-
+    res.status(201).json({
+      data: {
+        deliveryPartner: deliveryPartner,
+      },
+    });
 
     res.status(201).json({ deliveryPartner, otp });
   } catch (error) {
@@ -282,9 +286,7 @@ exports.updateDeliveryPartner = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(201).json({updateDeliveryPartner});
-
-
+    res.status(201).json({ updateDeliveryPartner });
   } catch (error) {
     next(error);
   }
