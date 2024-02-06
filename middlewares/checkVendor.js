@@ -34,12 +34,6 @@ module.exports = async (req, res, next) => {
             next({status: 404, message: USER_NOT_FOUND_ERR })
             return
         }
-
-        if (vendor.status != 'active') {
-            next({status: 404, message: VENDOR_NOT_PERMITTED })
-            return
-        }
-
         res.locals.user = vendor;
 
         next()
