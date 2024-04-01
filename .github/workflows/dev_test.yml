@@ -1,0 +1,37 @@
+name: Run Tests and Create .env.development
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create .env.development file
+        env:
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          NODE_ENV: development
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ORIGIN: "*"
+        run: |
+          echo "PORT=${PORT}" >> .env.development
+          echo "MONGODB_URI=${MONGODB_URI}" >> .env.development
+          echo "NODE_ENV=${NODE_ENV}" >> .env.development
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env.development
+          echo "ORIGIN=${ORIGIN}" >> .env.development
+
+      - name: Run Jest tests
+        run: npm test
