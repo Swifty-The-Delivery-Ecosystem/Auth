@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/swifty-order-service .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/swifty-auth-service .
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/swifty-order-service
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/swifty-auth-service
