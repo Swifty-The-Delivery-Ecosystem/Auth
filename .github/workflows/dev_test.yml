@@ -1,4 +1,4 @@
-name: Run Tests, Create .env.test, and Setup Admin Document
+name: Run Tests
 
 on:
   push:
@@ -28,13 +28,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install MongoDB client
+      - name: Install MongoDB client (mongosh)
         run: |
-          sudo apt-get update
           wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb http://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
           sudo apt-get update
-          sudo apt-get install -y mongodb-org-shell
+          sudo apt-get install -y mongosh
 
       - name: Create .env.test file
         env:
