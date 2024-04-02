@@ -1,0 +1,56 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: test
+          MONGO_INITDB_ROOT_PASSWORD: test
+          MONGO_INITDB_ROOT_ROLE: dbOwner
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install MongoDB client (mongosh)
+        run: |
+          wget -qO mongosh.tar.gz https://downloads.mongodb.com/compass/mongosh-1.0.5-linux-x64.tgz
+          tar -xzf mongosh.tar.gz
+          sudo mv mongosh-*-linux-x64/bin/mongosh /usr/local/bin/mongosh
+          rm -rf mongosh.tar.gz mongosh-*-linux-x64/
+
+      - name: Create .env.test file
+        env:
+          PORT: ${{ secrets.PORT }}
+          NODE_ENV: $${{secrets.NODE_ENV}}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ORIGIN: "*"
+        run: |
+          echo "PORT=${PORT}" >> .env.test
+          echo "MONGODB_URI=mongodb://test:test@localhost:27017" >> .env.test
+          echo "NODE_ENV=${NODE_ENV}" >> .env.test
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env.test
+          echo "ORIGIN=${ORIGIN}" >> .env.test
+          
+      - name: Setup Admin Document
+        run: |
+          echo 'db.admins.insertOne({username: "test", password: "test"})' | mongosh mongodb://test:test@localhost:27017
+
+      - name: Run Jest tests
+        run: npm test

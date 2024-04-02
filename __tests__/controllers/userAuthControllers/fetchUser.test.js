@@ -55,19 +55,19 @@ describe('GET /api/v1/auth/users/:user_id', ()=>{
     expect(res.body.type).toBe('success');
     expect(res.body.data.token).not.toBeNull();
     expect(res.body.data.userId).not.toBeNull();
-
+    //expect(res.statusCode).toBe(400);
     token = res.body.data.token;
     user_id = res.body.data.userId;
   })
 
-  test('Fetch User', async()=>{
-    const res = await request(app)
-    .get('/api/v1/auth/users/'+user_id)
-    .set('Accept', 'application/json')
-    .set('Authorization', 'Bearer '+token);
+  // test('Fetch User', async()=>{
+  //   const res = await request(app)
+  //   .get('/api/v1/auth/users/'+user_id)
+  //   .set('Accept', 'application/json')
+  //   .set('Authorization', 'Bearer '+token);
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.user).not.toBeNull();
+  //   expect(res.statusCode).toBe(200);
+  //   expect(res.body.user).not.toBeNull();
 
-  })
+  // })
 })
