@@ -1,4 +1,4 @@
-name: Run Tests and Create .env.development
+name: Run Tests 
 
 on:
   push:
@@ -11,6 +11,15 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+        env:
+          MONGO_INITDB_ROOT_USERNAME: test
+          MONGO_INITDB_ROOT_PASSWORD: test
+          MONGO_INITDB_ROOT_ROLE: dbOwner
 
     steps:
       - name: Checkout code
@@ -19,19 +28,19 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Create .env.development file
+      - name: Create .env.test file
         env:
           PORT: ${{ secrets.PORT }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
           NODE_ENV: development
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ORIGIN: "*"
         run: |
-          echo "PORT=${PORT}" >> .env.development
-          echo "MONGODB_URI=${MONGODB_URI}" >> .env.development
-          echo "NODE_ENV=${NODE_ENV}" >> .env.development
-          echo "JWT_SECRET=${JWT_SECRET}" >> .env.development
-          echo "ORIGIN=${ORIGIN}" >> .env.development
-
+          echo "PORT=${PORT}" >> .env.test
+          echo "MONGODB_URI=mongodb://test:test@localhost:27017" >> .env.test
+          echo "NODE_ENV=${NODE_ENV}" >> .env.test
+          echo "JWT_SECRET=${JWT_SECRET}" >> .env.test
+          echo "ORIGIN=${ORIGIN}" >> .env.test
+          
       - name: Run Jest tests
+        needs: mongodb
         run: npm test
