@@ -50,7 +50,7 @@ jobs:
           
       - name: Setup Admin Document
         run: |
-          echo 'db.Admin.insertOne({username: "test", password: "test"})' | mongosh mongodb://test:test@localhost:27017
+          echo 'db.admins.insertOne({username: "test", password: "test"})' | mongosh mongodb://test:test@localhost:27017
 
       - name: Run Jest tests
         run: npm test
