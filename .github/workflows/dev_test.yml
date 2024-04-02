@@ -1,4 +1,4 @@
-name: Run Tests 
+name: Run Tests dev
 
 on:
   push:
@@ -41,5 +41,9 @@ jobs:
           echo "JWT_SECRET=${JWT_SECRET}" >> .env.test
           echo "ORIGIN=${ORIGIN}" >> .env.test
           
+      - name: Setup Admin Document
+        run: |
+          echo 'db.Admin.insertOne({username: "test", password: "test"})' | mongo mongodb://test:test@localhost:27017
+
       - name: Run Jest tests
         run: npm test
