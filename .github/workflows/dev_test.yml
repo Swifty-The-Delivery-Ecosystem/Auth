@@ -42,5 +42,4 @@ jobs:
           echo "ORIGIN=${ORIGIN}" >> .env.test
           
       - name: Run Jest tests
-        needs: mongodb
         run: npm test
