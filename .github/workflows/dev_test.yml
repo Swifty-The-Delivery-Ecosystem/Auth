@@ -30,10 +30,10 @@ jobs:
 
       - name: Install MongoDB client (mongosh)
         run: |
-          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
-          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
-          sudo apt-get update
-          sudo apt-get install -y mongosh
+          wget -qO mongosh.tar.gz https://downloads.mongodb.com/compass/mongosh-1.0.5-linux-x64.tgz
+          tar -xzf mongosh.tar.gz
+          sudo mv mongosh-*-linux-x64/bin/mongosh /usr/local/bin/mongosh
+          rm -rf mongosh.tar.gz mongosh-*-linux-x64/
 
       - name: Create .env.test file
         env:
