@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Tests, Create .env.test, and Setup Admin Document
 
 on:
   push:
@@ -34,7 +34,7 @@ jobs:
           wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
           echo "deb http://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
           sudo apt-get update
-          sudo apt-get install -y mongodb-org-tools
+          sudo apt-get install -y mongodb-org-shell
 
       - name: Create .env.test file
         env:
@@ -51,7 +51,7 @@ jobs:
           
       - name: Setup Admin Document
         run: |
-          echo 'db.Admin.insertOne({username: "test", password: "test"})' | mongo mongodb://test:test@localhost:27017
+          echo 'db.Admin.insertOne({username: "test", password: "test"})' | mongosh mongodb://test:test@localhost:27017
 
       - name: Run Jest tests
         run: npm test
