@@ -38,7 +38,7 @@ jobs:
       - name: Create .env.test file
         env:
           PORT: ${{ secrets.PORT }}
-          NODE_ENV: development
+          NODE_ENV: $${{secrets.NODE_ENV}}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ORIGIN: "*"
         run: |
