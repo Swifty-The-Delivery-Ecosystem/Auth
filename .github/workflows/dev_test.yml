@@ -1,4 +1,5 @@
 name: Run Tests
+
 on:
   push:
     branches:
@@ -28,7 +29,12 @@ jobs:
         run: npm install
 
       - name: Install MongoDB client
-        run: sudo apt-get update && sudo apt-get install -y mongodb-clients
+        run: |
+          sudo apt-get update
+          wget -qO - https://www.mongodb.org/static/pgp/server-5.0.asc | sudo apt-key add -
+          echo "deb http://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/5.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-5.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-org-tools
 
       - name: Create .env.test file
         env:
