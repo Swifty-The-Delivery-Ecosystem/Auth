@@ -10,6 +10,8 @@ exports.JWT_DECODE_ERR = "incorrect token";
 
 exports.USER_NOT_FOUND_ERR = "User not found";
 
+exports.USER_NOT_VERIFIED = 'Please complete email verification'
+
 exports.ACCESS_DENIED_ERR = "Access deny for normal user";
 
 exports.Email_NOT_FOUND_ERR = "email not found";
@@ -23,6 +25,6 @@ exports.INCORRECT_CRED_ERR =
 exports.EMAIL_NOT_FOUND_ERR = "Email not found";
 
 exports.ADMIN_NOT_FOUND = "Admin not found";
-exports.OTP_EXPIRED_ERR = "OTP has expired";
+exports.OTP_EXPIRED_ERR = "OTP has expired. Re-Register to continue";
 
 exports.VENDOR_NOT_PERMITTED = "Vendor is not verified or has been debarred"
