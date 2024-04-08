@@ -2,6 +2,8 @@ const User = require("../models/user.model");
 const UserCredentials = require("../models/user.credentials");
 const OTP = require("../models/otp.model");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
+const {kSaltRounds} = require("../constants");
 
 const transporter = nodemailer.createTransport({
   port: 465,
@@ -93,10 +95,12 @@ exports.createNewUser = async (req, res, next) => {
     // save user
     const user = await createUser.save();
 
+    const hashedPassword = await bcrypt.hash(password,kSaltRounds);
+
     const createUserCredentials = new UserCredentials({
       user_id: user._id,
       email,
-      password,
+      password: hashedPassword,
     });
 
     createUserCredentials.save();
@@ -109,18 +113,6 @@ exports.createNewUser = async (req, res, next) => {
       entityModel: "User",
     });
 
-    // await new Promise((resolve, reject) => {
-    //   // verify connection configuration
-    //   transporter.verify(function (error, success) {
-    //     if (error) {
-    //       console.log(error);
-    //       reject(error);
-    //     } else {
-    //       console.log("Server is ready to take our messages");
-    //       resolve(success);
-    //     }
-    //   });
-    // });
 
     let mailData = {
       from: {
@@ -132,7 +124,7 @@ exports.createNewUser = async (req, res, next) => {
       text: `Your Otp is - ${otp}`,
     };
 
-    await new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
       // send mail
       transporter.sendMail(mailData, (err, info) => {
         if (err) {
@@ -169,7 +161,7 @@ exports.login = async (req, res, next) => {
       next({ status: 401, message: USER_NOT_VERIFIED });
     }
 
-    const passwordMatch = password === user.password ? 1 : 0;
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
       const token = createJwtToken({ userId: user.user_id });

@@ -4,6 +4,7 @@ const OTP = require("../models/otp.model");
 
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
+const {kSaltRounds} = require('../constants')
 
 const {
   USER_NOT_FOUND_ERR,
@@ -22,7 +23,7 @@ let mailTransporter = nodemailer.createTransport({
   pass: "mxzc acbf revb xcxh",
 });
 
-// --------------------- create new user ---------------------------------
+// --------------------- create new Vendor ---------------------------------
 
 exports.createNewVendor = async (req, res, next) => {
   try {
@@ -42,13 +43,15 @@ exports.createNewVendor = async (req, res, next) => {
 
     console.log(description);
 
-    // let images = [image_url];
+    
 
     const emailExist = await Vendor.findOne({ email });
     if (emailExist) {
       next({ status: 400, message: EMAIL_ALREADY_EXISTS_ERR });
       return;
     }
+
+    const hashedPassword = await bcrypt.hash(password, kSaltRounds);
 
     const createVendor = new Vendor({
       ownerName,
@@ -66,7 +69,7 @@ exports.createNewVendor = async (req, res, next) => {
 
     const createVendorCredentials = new VendorCredentials({
       email,
-      password,
+      password: hashedPassword,
       vendor_id: vendor._id,
     });
     await createVendorCredentials.save();
@@ -77,32 +80,32 @@ exports.createNewVendor = async (req, res, next) => {
     });
     await menu.save();
 
-    const otp = Math.floor(1000 + Math.random() * 9000);
-    const sentOtp = new OTP({
-      code: otp,
-      expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000),
-      entity: vendor._id,
-      entityModel: "Vendor",
-    });
-    await sentOtp.save();
+    // const otp = Math.floor(1000 + Math.random() * 9000);
+    // const sentOtp = new OTP({
+    //   code: otp,
+    //   expiresAt: new Date(new Date().getTime() + 2 * 60 * 1000),
+    //   entity: vendor._id,
+    //   entityModel: "Vendor",
+    // });
+    // await sentOtp.save();
 
-    let mailDetails = {
-      from: "adityavinay@iitbhilai.ac.in",
-      to: email,
-      subject: "Test mail",
-      text: `Your OTP is: ${otp}`,
-    };
+    // let mailDetails = {
+    //   from: "adityavinay@iitbhilai.ac.in",
+    //   to: email,
+    //   subject: "Test mail",
+    //   text: `Your OTP is: ${otp}`,
+    // };c
 
-    mailTransporter.sendMail(mailDetails, function (err, data) {
-      if (err) {
-        console.log("Error Occurs");
-        console.log(err);
-      } else {
-        console.log("Email sent successfully");
-      }
-    });
+    // mailTransporter.sendMail(mailDetails, function (err, data) {
+    //   if (err) {
+    //     console.log("Error Occurs");
+    //     console.log(err);
+    //   } else {
+    //     console.log("Email sent successfully");
+    //   }
+    // });
 
-    res.status(200).json("OTP send successfully");
+    res.status(200).json("Register successfully");
   } catch (error) {
     next(error);
   }
@@ -120,7 +123,7 @@ exports.vendorLogin = async (req, res, next) => {
       return;
     }
 
-    const passwordMatch = vendor.password === password;
+    const passwordMatch = await bcrypt.compare(password, vendor.password);
     if (passwordMatch) {
       // Generate JWT token
       const token = createJwtToken({ userId: vendor.vendor_id });
