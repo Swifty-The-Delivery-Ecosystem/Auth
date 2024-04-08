@@ -160,6 +160,10 @@ exports.login = async (req, res, next) => {
       return;
     }
 
+    if(!user.is_verified){
+      next({ status: 401, message: ACCESS_DENIED_ERR });
+    }
+
     const passwordMatch = password === user.password ? 1 : 0;
 
     if (passwordMatch) {
