@@ -2,6 +2,8 @@ const User = require("../models/user.model");
 const UserCredentials = require("../models/user.credentials");
 const OTP = require("../models/otp.model");
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
+const {kSaltRounds} = require("../constants");
 
 const transporter = nodemailer.createTransport({
   port: 465,
@@ -21,6 +23,7 @@ const {
   ACCESS_DENIED_ERR,
   EMAIL_NOT_FOUND_ERR,
   OTP_EXPIRED_ERR,
+  USER_NOT_VERIFIED,
 } = require("../errors");
 
 const { createJwtToken } = require("../utils/token.util");
@@ -31,6 +34,7 @@ exports.verifyOtp = async (req, res, next) => {
     const currentDateTime = new Date();
 
     const user = await User.findOne({ email });
+    const userCredentials = await UserCredentials.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       console.log("user not found");
@@ -47,10 +51,13 @@ exports.verifyOtp = async (req, res, next) => {
     }
     if (otp.expiresAt < currentDateTime) {
       next({ status: 400, message: OTP_EXPIRED_ERR });
+      await user.deleteOne();
+      await userCredentials.deleteOne();
       return;
     }
 
     const token = createJwtToken({ userId: user._id });
+    await userCredentials.updateOne({ is_verified: true });
 
     res.status(201).json({
       type: "success",
@@ -88,10 +95,12 @@ exports.createNewUser = async (req, res, next) => {
     // save user
     const user = await createUser.save();
 
+    const hashedPassword = await bcrypt.hash(password,kSaltRounds);
+
     const createUserCredentials = new UserCredentials({
       user_id: user._id,
       email,
-      password,
+      password: hashedPassword,
     });
 
     createUserCredentials.save();
@@ -104,18 +113,6 @@ exports.createNewUser = async (req, res, next) => {
       entityModel: "User",
     });
 
-    // await new Promise((resolve, reject) => {
-    //   // verify connection configuration
-    //   transporter.verify(function (error, success) {
-    //     if (error) {
-    //       console.log(error);
-    //       reject(error);
-    //     } else {
-    //       console.log("Server is ready to take our messages");
-    //       resolve(success);
-    //     }
-    //   });
-    // });
 
     let mailData = {
       from: {
@@ -127,7 +124,7 @@ exports.createNewUser = async (req, res, next) => {
       text: `Your Otp is - ${otp}`,
     };
 
-    await new Promise((resolve, reject) => {
+    new Promise((resolve, reject) => {
       // send mail
       transporter.sendMail(mailData, (err, info) => {
         if (err) {
@@ -160,7 +157,11 @@ exports.login = async (req, res, next) => {
       return;
     }
 
-    const passwordMatch = password === user.password ? 1 : 0;
+    if(!user.is_verified){
+      next({ status: 401, message: USER_NOT_VERIFIED });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
       const token = createJwtToken({ userId: user.user_id });
