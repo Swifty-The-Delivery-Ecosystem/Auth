@@ -21,6 +21,7 @@ const {
   ACCESS_DENIED_ERR,
   EMAIL_NOT_FOUND_ERR,
   OTP_EXPIRED_ERR,
+  USER_NOT_VERIFIED,
 } = require("../errors");
 
 const { createJwtToken } = require("../utils/token.util");
@@ -161,7 +162,7 @@ exports.login = async (req, res, next) => {
     }
 
     if(!user.is_verified){
-      next({ status: 401, message: ACCESS_DENIED_ERR });
+      next({ status: 401, message: USER_NOT_VERIFIED });
     }
 
     const passwordMatch = password === user.password ? 1 : 0;
