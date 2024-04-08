@@ -32,6 +32,7 @@ exports.verifyOtp = async (req, res, next) => {
     const currentDateTime = new Date();
 
     const user = await User.findOne({ email });
+    const userCredentials = await UserCredentials.findOne({ email });
     if (!user) {
       next({ status: 400, message: USER_NOT_FOUND_ERR });
       console.log("user not found");
@@ -48,10 +49,13 @@ exports.verifyOtp = async (req, res, next) => {
     }
     if (otp.expiresAt < currentDateTime) {
       next({ status: 400, message: OTP_EXPIRED_ERR });
+      await user.deleteOne();
+      await userCredentials.deleteOne();
       return;
     }
 
     const token = createJwtToken({ userId: user._id });
+    await userCredentials.updateOne({ is_verified: true });
 
     res.status(201).json({
       type: "success",
