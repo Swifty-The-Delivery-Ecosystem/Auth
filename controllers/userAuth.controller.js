@@ -161,7 +161,7 @@ exports.login = async (req, res, next) => {
       next({ status: 401, message: USER_NOT_VERIFIED });
     }
 
-    const passwordMatch = password === user.password ? 1 : 0;
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
       const token = createJwtToken({ userId: user.user_id });
